@@ -64,7 +64,43 @@
             margin: 10px 0;
         }
 
-        /* SETTINGS GROUP - RAPIH HARUS DI TEKAN */
+        /* TAB MENU */
+        .tab-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: #1a1a2e;
+            border: 1px solid #ffaa00;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: #2a2a3a;
+        }
+
+        .tab-btn.active {
+            background: #ffaa00;
+            color: black;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* SETTINGS GROUP - SEMUA DISEMBUNYIKAN SAMPAI DI KLIK */
         .settings-group {
             background: #1a1a2e;
             border: 1px solid #ffaa00;
@@ -114,6 +150,7 @@
             display: none;
         }
 
+        /* PANEL SECTION */
         .panel-section {
             background: #1a1a2e;
             border: 1px solid #ffaa00;
@@ -170,6 +207,11 @@
             border-color: #ffdd44;
         }
 
+        .form-control::placeholder {
+            color: #4a4a5a; /* Warna gelap untuk placeholder */
+            opacity: 0.5;
+        }
+
         textarea.form-control {
             resize: vertical;
             min-height: 100px;
@@ -211,36 +253,84 @@
             font-size: 12px;
         }
 
-        /* COLOR PICKER */
-        .color-picker-container {
+        /* COLOR PICKER DENGAN SLIDER */
+        .color-picker-full {
+            margin-bottom: 20px;
+        }
+        
+        .color-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 10px;
+            border: 2px solid #ffaa00;
+            margin-bottom: 20px;
+            transition: background 0.1s ease;
+        }
+        
+        .color-sliders {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .slider-group {
             display: flex;
             align-items: center;
-            gap: 20px;
-            margin-top: 10px;
-            flex-wrap: wrap;
+            gap: 15px;
         }
-
-        .color-circle {
-            width: 50px;
-            height: 50px;
+        
+        .slider-group label {
+            width: 30px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .slider-group input[type=range] {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            -webkit-appearance: none;
+        }
+        
+        .slider-group input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border: 3px solid #ffaa00;
+            background: white;
+            border: 2px solid #ffaa00;
             cursor: pointer;
-            transition: transform 0.2s;
         }
-
-        .color-circle:hover {
-            transform: scale(1.1);
+        
+        .slider-group input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #ffaa00;
+            cursor: pointer;
         }
-
-        .color-options {
+        
+        .color-value {
+            background: #0f0f1a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            border: 1px solid #ffaa00;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        .preset-colors {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 15px;
+            margin-top: 20px;
         }
-
-        .color-option {
+        
+        .preset-color {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -248,23 +338,10 @@
             border: 2px solid transparent;
             transition: all 0.2s;
         }
-
-        .color-option:hover {
+        
+        .preset-color:hover {
             transform: scale(1.1);
             border-color: white;
-        }
-
-        .color-option.active {
-            border-color: white;
-            transform: scale(1.1);
-        }
-
-        .color-code {
-            background: #0f0f1a;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            border: 1px solid #ffaa00;
         }
 
         /* UPLOAD AREA */
@@ -511,42 +588,7 @@
             cursor: pointer;
         }
 
-        /* TAB MENU */
-        .tab-menu {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            padding: 12px 24px;
-            background: #1a1a2e;
-            border: 1px solid #ffaa00;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn:hover {
-            background: #2a2a3a;
-        }
-
-        .tab-btn.active {
-            background: #ffaa00;
-            color: black;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
+        /* SEARCH BOX */
         .search-box {
             width: 100%;
             padding: 15px;
@@ -561,6 +603,11 @@
         .search-box:focus {
             outline: none;
             border-color: #ffdd44;
+        }
+
+        .search-box::placeholder {
+            color: #4a4a5a;
+            opacity: 0.7;
         }
 
         /* MODAL */
@@ -709,7 +756,6 @@
             <div class="tab-btn" data-tab="produk">📦 PRODUK</div>
             <div class="tab-btn" data-tab="transaksi">📊 TRANSAKSI</div>
             <div class="tab-btn" data-tab="testimoni">📸 TESTIMONI</div>
-            <div class="tab-btn" data-tab="pending">⏳ PENDING</div>
         </div>
 
         <!-- TAB DASHBOARD -->
@@ -729,7 +775,7 @@
             </div>
         </div>
 
-        <!-- TAB SETTINGS - DENGAN GROUP COLLAPSIBLE -->
+        <!-- TAB SETTINGS - SEMUA DISEMBUNYIKAN SAMPAI DI KLIK -->
         <div class="tab-content" id="tab-settings">
             <!-- GROUP 1: TEMA -->
             <div class="settings-group">
@@ -737,32 +783,37 @@
                     <h3><i class="fas fa-palette"></i> WARNA TEMA</h3>
                     <i class="fas fa-chevron-down"></i>
                 </div>
-                <div class="settings-content">
-                    <div class="grid-2">
-                        <div>
-                            <div class="form-group">
-                                <label>Warna Utama (Primary)</label>
-                                <div class="color-picker-container">
-                                    <div class="color-circle" id="primaryColorPreview" style="background: #ffaa00;"></div>
-                                    <input type="text" class="form-control" id="primaryColorInput" value="#ffaa00" placeholder="#ffaa00">
-                                </div>
-                                <div class="color-options" id="primaryColorOptions">
-                                    <div class="color-option" style="background: #ffaa00;" data-color="#ffaa00"></div>
-                                    <div class="color-option" style="background: #6b46c1;" data-color="#6b46c1"></div>
-                                    <div class="color-option" style="background: #00cc88;" data-color="#00cc88"></div>
-                                    <div class="color-option" style="background: #ff4444;" data-color="#ff4444"></div>
-                                    <div class="color-option" style="background: #3399ff;" data-color="#3399ff"></div>
-                                    <div class="color-option" style="background: #ff66b2;" data-color="#ff66b2"></div>
-                                </div>
+                <div class="settings-content collapsed">
+                    <div class="color-picker-full">
+                        <div class="color-preview" id="colorPreview" style="background: #ffaa00;"></div>
+                        
+                        <div class="color-sliders">
+                            <div class="slider-group">
+                                <label>R</label>
+                                <input type="range" id="redSlider" min="0" max="255" value="255">
+                                <span id="redValue">255</span>
+                            </div>
+                            <div class="slider-group">
+                                <label>G</label>
+                                <input type="range" id="greenSlider" min="0" max="255" value="170">
+                                <span id="greenValue">170</span>
+                            </div>
+                            <div class="slider-group">
+                                <label>B</label>
+                                <input type="range" id="blueSlider" min="0" max="255" value="0">
+                                <span id="blueValue">0</span>
                             </div>
                         </div>
-                        <div>
-                            <div class="form-group">
-                                <label>Preview</label>
-                                <div style="background: var(--primary); padding: 20px; border-radius: 10px; color: white; text-align: center;" id="colorPreview">
-                                    Contoh Teks dengan Warna Primary
-                                </div>
-                            </div>
+                        
+                        <div class="color-value" id="colorValue">#ffaa00</div>
+                        
+                        <div class="preset-colors">
+                            <div class="preset-color" style="background: #ffaa00;" onclick="setColor('#ffaa00')"></div>
+                            <div class="preset-color" style="background: #6b46c1;" onclick="setColor('#6b46c1')"></div>
+                            <div class="preset-color" style="background: #00cc88;" onclick="setColor('#00cc88')"></div>
+                            <div class="preset-color" style="background: #ff4444;" onclick="setColor('#ff4444')"></div>
+                            <div class="preset-color" style="background: #3399ff;" onclick="setColor('#3399ff')"></div>
+                            <div class="preset-color" style="background: #ff66b2;" onclick="setColor('#ff66b2')"></div>
                         </div>
                     </div>
                     <button class="btn" id="simpanWarna"><i class="fas fa-save"></i> SIMPAN WARNA</button>
@@ -775,7 +826,7 @@
                     <h3><i class="fas fa-store"></i> PENGATURAN TOKO</h3>
                     <i class="fas fa-chevron-down"></i>
                 </div>
-                <div class="settings-content">
+                <div class="settings-content collapsed">
                     <div class="grid-2">
                         <div>
                             <div class="form-group">
@@ -823,7 +874,7 @@
                     <h3><i class="fas fa-qrcode"></i> QRIS SETTINGS</h3>
                     <i class="fas fa-chevron-down"></i>
                 </div>
-                <div class="settings-content">
+                <div class="settings-content collapsed">
                     <div class="form-group">
                         <label>API Key Payinaja</label>
                         <input type="text" class="form-control" id="apiKey" value="RA_46617fdd55f4de340fe92126bbbd03cf">
@@ -847,7 +898,7 @@
                     <h3><i class="fas fa-info-circle"></i> INFORMASI TOKO</h3>
                     <i class="fas fa-chevron-down"></i>
                 </div>
-                <div class="settings-content">
+                <div class="settings-content collapsed">
                     <div class="form-group">
                         <label>Kelebihan Web (pisahkan dengan koma)</label>
                         <textarea class="form-control" id="kelebihan" rows="3" placeholder="Transaksi Real-time, Statistik Pengunjung, QRIS Otomatis..."></textarea>
@@ -858,11 +909,11 @@
                     </div>
                     <div class="form-group">
                         <label>Tahun Didirikan</label>
-                        <input type="text" class="form-control" id="tahunDidirikan" value="2026">
+                        <input type="text" class="form-control" id="tahunDidirikan" value="2026" placeholder="2026">
                     </div>
                     <div class="form-group">
                         <label>Lokasi</label>
-                        <input type="text" class="form-control" id="lokasi" value="Jakarta, Indonesia">
+                        <input type="text" class="form-control" id="lokasi" value="Jakarta, Indonesia" placeholder="Jakarta, Indonesia">
                     </div>
                     <button class="btn" id="simpanInfo"><i class="fas fa-save"></i> SIMPAN INFORMASI</button>
                 </div>
@@ -874,26 +925,26 @@
                     <h3><i class="fas fa-share-alt"></i> SOSIAL MEDIA</h3>
                     <i class="fas fa-chevron-down"></i>
                 </div>
-                <div class="settings-content">
+                <div class="settings-content collapsed">
                     <div class="grid-2">
                         <div>
                             <div class="form-group">
                                 <label>Telegram</label>
-                                <input type="text" class="form-control" id="telegram" value="arsalcs">
+                                <input type="text" class="form-control" id="telegram" value="arsalcs" placeholder="username">
                             </div>
                             <div class="form-group">
                                 <label>Instagram</label>
-                                <input type="text" class="form-control" id="instagram" value="arsalways">
+                                <input type="text" class="form-control" id="instagram" value="arsalways" placeholder="username">
                             </div>
                         </div>
                         <div>
                             <div class="form-group">
                                 <label>Facebook</label>
-                                <input type="text" class="form-control" id="facebook" value="arsalways">
+                                <input type="text" class="form-control" id="facebook" value="arsalways" placeholder="username">
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" class="form-control" id="email" value="cs@arsalways.com">
+                                <input type="email" class="form-control" id="email" value="cs@arsalways.com" placeholder="email">
                             </div>
                         </div>
                     </div>
@@ -918,7 +969,8 @@
                         </div>
                         <div class="form-group">
                             <label>Emoji (jika tidak pakai gambar)</label>
-                            <input type="text" class="form-control" id="produkEmoji" placeholder="🧥">
+                            <input type="text" class="form-control" id="produkEmoji" placeholder="🧥" style="color: #4a4a5a;">
+                            <small style="color:#666;">Contoh: 🧥 👟 💍 (placeholder gelap)</small>
                         </div>
                     </div>
                     <div>
@@ -992,14 +1044,6 @@
                 <div id="daftarTestimoni"></div>
             </div>
         </div>
-
-        <!-- TAB PENDING -->
-        <div class="tab-content" id="tab-pending">
-            <div class="panel-section">
-                <h2><i class="fas fa-clock"></i> BUKTI PEMBAYARAN PENDING</h2>
-                <div id="daftarPending"></div>
-            </div>
-        </div>
     </div>
 
     <!-- MODAL LIHAT GAMBAR -->
@@ -1032,7 +1076,8 @@
         let selectedFile = null;
         let currentUploadType = '';
 
-        // AMBIL DATA
+        // ==================== AMBIL DATA ====================
+        
         database.ref('settings').on('value', (s) => {
             settings = s.val() || {};
             updateSettingsForm();
@@ -1048,7 +1093,6 @@
         database.ref('transaksi').on('value', (s) => {
             transaksi = s.val() ? Object.values(s.val()) : [];
             renderTransaksi();
-            renderPending();
             renderDashboard();
             document.getElementById('totalTransaksi').textContent = transaksi.length;
         });
@@ -1064,32 +1108,83 @@
             document.getElementById('totalPengunjung').textContent = s.numChildren();
         });
 
-        // UPDATE WARNA
+        // ==================== FUNGSI WARNA ====================
+        
         function updateWarna() {
             if (settings.primaryColor) {
-                document.documentElement.style.setProperty('--primary', settings.primaryColor);
-                document.getElementById('primaryColorPreview').style.background = settings.primaryColor;
-                document.getElementById('primaryColorInput').value = settings.primaryColor;
                 document.getElementById('colorPreview').style.background = settings.primaryColor;
+                document.getElementById('colorValue').textContent = settings.primaryColor;
+                
+                // Update slider
+                const r = parseInt(settings.primaryColor.substr(1,2), 16);
+                const g = parseInt(settings.primaryColor.substr(3,2), 16);
+                const b = parseInt(settings.primaryColor.substr(5,2), 16);
+                
+                document.getElementById('redSlider').value = r;
+                document.getElementById('greenSlider').value = g;
+                document.getElementById('blueSlider').value = b;
+                document.getElementById('redValue').textContent = r;
+                document.getElementById('greenValue').textContent = g;
+                document.getElementById('blueValue').textContent = b;
             }
         }
 
-        // UPDATE SETTINGS FORM
+        // Color slider events
+        function updateColorFromSliders() {
+            const r = document.getElementById('redSlider').value;
+            const g = document.getElementById('greenSlider').value;
+            const b = document.getElementById('blueSlider').value;
+            
+            document.getElementById('redValue').textContent = r;
+            document.getElementById('greenValue').textContent = g;
+            document.getElementById('blueValue').textContent = b;
+            
+            const hex = '#' + 
+                parseInt(r).toString(16).padStart(2, '0') + 
+                parseInt(g).toString(16).padStart(2, '0') + 
+                parseInt(b).toString(16).padStart(2, '0');
+            
+            document.getElementById('colorPreview').style.background = hex;
+            document.getElementById('colorValue').textContent = hex;
+        }
+
+        document.getElementById('redSlider').addEventListener('input', updateColorFromSliders);
+        document.getElementById('greenSlider').addEventListener('input', updateColorFromSliders);
+        document.getElementById('blueSlider').addEventListener('input', updateColorFromSliders);
+
+        window.setColor = function(hex) {
+            document.getElementById('colorPreview').style.background = hex;
+            document.getElementById('colorValue').textContent = hex;
+            
+            const r = parseInt(hex.substr(1,2), 16);
+            const g = parseInt(hex.substr(3,2), 16);
+            const b = parseInt(hex.substr(5,2), 16);
+            
+            document.getElementById('redSlider').value = r;
+            document.getElementById('greenSlider').value = g;
+            document.getElementById('blueSlider').value = b;
+            document.getElementById('redValue').textContent = r;
+            document.getElementById('greenValue').textContent = g;
+            document.getElementById('blueValue').textContent = b;
+        };
+
+        // ==================== UPDATE SETTINGS FORM ====================
+
         function updateSettingsForm() {
-            document.getElementById('storeName').value = settings.storeName || 'ARSALWAYS';
-            document.getElementById('storeDescription').value = settings.storeDescription || '<i class="fas fa-star"></i> Galaxy Fashion • Neon Style • Future Wear <i class="fas fa-star"></i>';
-            document.getElementById('waNumber').value = settings.waNumber || '6281234567890';
-            document.getElementById('danaNumber').value = settings.danaNumber || '0895-1234-5678';
-            document.getElementById('gopayNumber').value = settings.gopayNumber || '0857-9876-5432';
+            document.getElementById('storeName').value = settings.storeName || '';
+            document.getElementById('storeDescription').value = settings.storeDescription || '';
+            document.getElementById('waNumber').value = settings.waNumber || '';
+            document.getElementById('danaNumber').value = settings.danaNumber || '';
+            document.getElementById('gopayNumber').value = settings.gopayNumber || '';
             document.getElementById('biayaQRIS').value = settings.biayaQRIS || '850';
             document.getElementById('pajak').value = settings.pajak || '750';
             document.getElementById('apiKey').value = settings.apiKey || 'RA_46617fdd55f4de340fe92126bbbd03cf';
-            document.getElementById('tahunDidirikan').value = settings.tahunDidirikan || '2026';
-            document.getElementById('lokasi').value = settings.lokasi || 'Jakarta, Indonesia';
-            document.getElementById('telegram').value = settings.telegram || 'arsalcs';
-            document.getElementById('instagram').value = settings.instagram || 'arsalways';
-            document.getElementById('facebook').value = settings.facebook || 'arsalways';
-            document.getElementById('email').value = settings.email || 'cs@arsalways.com';
+            document.getElementById('tahunDidirikan').value = settings.tahunDidirikan || '';
+            document.getElementById('lokasi').value = settings.lokasi || '';
+            document.getElementById('telegram').value = settings.telegram || '';
+            document.getElementById('instagram').value = settings.instagram || '';
+            document.getElementById('facebook').value = settings.facebook || '';
+            document.getElementById('email').value = settings.email || '';
             
             if (settings.kelebihan) {
                 document.getElementById('kelebihan').value = settings.kelebihan.join(', ');
@@ -1103,7 +1198,8 @@
             }
         }
 
-        // TOGGLE SETTINGS
+        // ==================== TOGGLE SETTINGS ====================
+
         window.toggleSettings = function(header) {
             const content = header.nextElementSibling;
             const icon = header.querySelector('i');
@@ -1118,31 +1214,14 @@
             }
         };
 
-        // WARNA PICKER
-        const colorOptions = document.querySelectorAll('.color-option');
-        colorOptions.forEach(opt => {
-            opt.addEventListener('click', function() {
-                const color = this.dataset.color;
-                document.getElementById('primaryColorInput').value = color;
-                document.getElementById('primaryColorPreview').style.background = color;
-                
-                colorOptions.forEach(o => o.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
+        // ==================== SIMPAN SETTINGS ====================
 
-        document.getElementById('primaryColorInput').addEventListener('input', function() {
-            document.getElementById('primaryColorPreview').style.background = this.value;
-        });
-
-        // SIMPAN WARNA
         document.getElementById('simpanWarna').onclick = function() {
-            const color = document.getElementById('primaryColorInput').value;
+            const color = document.getElementById('colorValue').textContent;
             database.ref('settings/primaryColor').set(color);
             alert('Warna berhasil disimpan!');
         };
 
-        // SIMPAN SETTINGS
         document.getElementById('simpanSettings').onclick = function() {
             const newSettings = {
                 storeName: document.getElementById('storeName').value,
@@ -1151,14 +1230,13 @@
                 danaNumber: document.getElementById('danaNumber').value,
                 gopayNumber: document.getElementById('gopayNumber').value,
                 storeLogo: document.getElementById('storeLogoUrl').value || settings.storeLogo,
-                primaryColor: document.getElementById('primaryColorInput').value
+                primaryColor: document.getElementById('colorValue').textContent
             };
             
             database.ref('settings').update(newSettings);
             alert('Settings berhasil disimpan!');
         };
 
-        // SIMPAN QRIS
         document.getElementById('simpanQRIS').onclick = function() {
             database.ref('settings').update({
                 biayaQRIS: parseInt(document.getElementById('biayaQRIS').value) || 850,
@@ -1168,10 +1246,9 @@
             alert('QRIS Settings disimpan!');
         };
 
-        // SIMPAN INFO
         document.getElementById('simpanInfo').onclick = function() {
-            const kelebihan = document.getElementById('kelebihan').value.split(',').map(s => s.trim());
-            const kekurangan = document.getElementById('kekurangan').value.split(',').map(s => s.trim());
+            const kelebihan = document.getElementById('kelebihan').value.split(',').map(s => s.trim()).filter(s => s);
+            const kekurangan = document.getElementById('kekurangan').value.split(',').map(s => s.trim()).filter(s => s);
             
             database.ref('settings').update({
                 kelebihan: kelebihan,
@@ -1182,7 +1259,6 @@
             alert('Informasi disimpan!');
         };
 
-        // SIMPAN SOSMED
         document.getElementById('simpanSosmed').onclick = function() {
             database.ref('settings').update({
                 telegram: document.getElementById('telegram').value,
@@ -1193,7 +1269,8 @@
             alert('Sosial media disimpan!');
         };
 
-        // UPLOAD LOGO TOKO
+        // ==================== UPLOAD ====================
+
         document.getElementById('uploadStoreLogo').onclick = () => {
             currentUploadType = 'storeLogo';
             document.getElementById('fileStoreLogo').click();
@@ -1211,7 +1288,6 @@
             reader.readAsDataURL(file);
         };
 
-        // UPLOAD PRODUK
         document.getElementById('uploadProduk').onclick = () => {
             currentUploadType = 'produk';
             document.getElementById('fileProduk').click();
@@ -1229,7 +1305,8 @@
             reader.readAsDataURL(file);
         };
 
-        // TAMBAH PRODUK
+        // ==================== TAMBAH PRODUK ====================
+
         document.getElementById('tambahProduk').onclick = async function() {
             const nama = document.getElementById('produkNama').value;
             const harga = parseInt(document.getElementById('produkHarga').value);
@@ -1275,14 +1352,16 @@
             });
         };
 
-        // HAPUS PRODUK
+        // ==================== HAPUS PRODUK ====================
+
         window.hapusProduk = function(id) {
             if (confirm('Yakin ingin menghapus produk ini?')) {
                 database.ref('produk/' + id).remove();
             }
         };
 
-        // EDIT PRODUK
+        // ==================== EDIT PRODUK ====================
+
         window.editProduk = function(id) {
             const p = produk.find(p => p.id === id);
             if (!p) return;
@@ -1302,7 +1381,8 @@
             database.ref('produk/' + id).remove();
         };
 
-        // RENDER PRODUK
+        // ==================== RENDER PRODUK ====================
+
         function renderProduk() {
             const search = document.getElementById('searchProduk')?.value.toLowerCase() || '';
             let html = '';
@@ -1330,7 +1410,8 @@
             document.getElementById('daftarProduk').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada produk</p>';
         }
 
-        // RENDER DASHBOARD
+        // ==================== RENDER DASHBOARD ====================
+
         function renderDashboard() {
             // Transaksi terbaru
             const transaksiTerbaru = transaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5);
@@ -1379,7 +1460,8 @@
             document.getElementById('testimoniTerbaru').innerHTML = testimoniHtml || '<p style="text-align:center;">Belum ada testimoni</p>';
         }
 
-        // RENDER TRANSAKSI
+        // ==================== RENDER TRANSAKSI ====================
+
         function renderTransaksi() {
             const search = document.getElementById('searchTransaksi')?.value.toLowerCase() || '';
             const filterStatus = document.getElementById('filterStatusTransaksi')?.value || 'all';
@@ -1441,6 +1523,8 @@
                                 <button class="btn btn-success btn-sm" onclick="updateStatus('${t.id}', 'sukses')"><i class="fas fa-check"></i> Terima</button>
                                 <button class="btn btn-danger btn-sm" onclick="updateStatus('${t.id}', 'batal')"><i class="fas fa-times"></i> Tolak</button>
                             ` : ''}
+                            
+                            <button class="btn btn-danger btn-sm" onclick="hapusTransaksi('${t.id}')"><i class="fas fa-trash"></i> Hapus</button>
                         </div>
                     </div>
                 `;
@@ -1449,40 +1533,8 @@
             document.getElementById('daftarTransaksi').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada transaksi</p>';
         }
 
-        // RENDER PENDING
-        function renderPending() {
-            const pending = transaksi.filter(t => t.status === 'pending' && t.buktiUrl);
-            let html = '';
-            
-            pending.forEach(t => {
-                html += `
-                    <div class="transaksi-item">
-                        <div class="transaksi-header">
-                            <h3 style="color:#ffaa00;">${t.produk || 'Produk'}</h3>
-                            <span class="transaksi-status status-pending">PENDING</span>
-                        </div>
-                        
-                        <div class="transaksi-detail">
-                            <div>ID: ${t.id}</div>
-                            <div>Rp ${t.harga?.toLocaleString() || '0'}</div>
-                            <div>${t.metode || '-'}</div>
-                            <div>${t.tanggal || '-'}</div>
-                        </div>
-                        
-                        <img src="${t.buktiUrl}" class="transaksi-bukti" onclick="lihatGambar('${t.buktiUrl}')">
-                        
-                        <div class="transaksi-actions">
-                            <button class="btn btn-success" onclick="updateStatus('${t.id}', 'sukses')"><i class="fas fa-check"></i> TERIMA & PUBLISH TESTIMONI</button>
-                            <button class="btn btn-danger" onclick="updateStatus('${t.id}', 'batal')"><i class="fas fa-times"></i> TOLAK</button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            document.getElementById('daftarPending').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada pending</p>';
-        }
+        // ==================== RENDER TESTIMONI ====================
 
-        // RENDER TESTIMONI
         function renderTestimoni() {
             const search = document.getElementById('searchTestimoni')?.value.toLowerCase() || '';
             let html = '';
@@ -1515,7 +1567,8 @@
             document.getElementById('daftarTestimoni').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada testimoni</p>';
         }
 
-        // UPDATE STATUS TRANSAKSI
+        // ==================== UPDATE STATUS TRANSAKSI ====================
+
         window.updateStatus = function(id, status) {
             database.ref('transaksi/' + id).update({ status: status }).then(() => {
                 if (status === 'sukses') {
@@ -1544,14 +1597,24 @@
             });
         };
 
-        // HAPUS TESTIMONI
+        // ==================== HAPUS TRANSAKSI ====================
+
+        window.hapusTransaksi = function(id) {
+            if (confirm('Yakin ingin menghapus transaksi ini?')) {
+                database.ref('transaksi/' + id).remove();
+            }
+        };
+
+        // ==================== HAPUS TESTIMONI ====================
+
         window.hapusTestimoni = function(id) {
             if (confirm('Hapus testimoni ini?')) {
                 database.ref('testimoni/' + id).remove();
             }
         };
 
-        // LIHAT GAMBAR
+        // ==================== LIHAT GAMBAR ====================
+
         window.lihatGambar = function(url) {
             document.getElementById('modalContent').innerHTML = `<img src="${url}">`;
             document.getElementById('modalGambar').classList.add('aktif');
@@ -1567,16 +1630,19 @@
             }
         };
 
-        // SEARCH EVENT
+        // ==================== SEARCH EVENT ====================
+
         document.getElementById('searchProduk')?.addEventListener('input', renderProduk);
         document.getElementById('searchTransaksi')?.addEventListener('input', renderTransaksi);
         document.getElementById('searchTestimoni')?.addEventListener('input', renderTestimoni);
         
-        // FILTER EVENT
+        // ==================== FILTER EVENT ====================
+
         document.getElementById('filterStatusTransaksi')?.addEventListener('change', renderTransaksi);
         document.getElementById('filterMetodeTransaksi')?.addEventListener('change', renderTransaksi);
 
-        // TAB MENU
+        // ==================== TAB MENU ====================
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1587,7 +1653,8 @@
             });
         });
 
-        // TEST API
+        // ==================== TEST API ====================
+
         document.getElementById('testApi').onclick = async function() {
             try {
                 const response = await fetch('qris_handler.php', {
@@ -1608,8 +1675,9 @@
             }
         };
 
-        // INIT
+        // ==================== INIT ====================
+
         console.log('Panel Admin siap!');
     </script>
 </body>
-  </html>
+    </html>
