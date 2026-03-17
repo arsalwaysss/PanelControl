@@ -784,7 +784,7 @@
                 </div>
             </div>
 
-            <!-- GROUP 2: TOKO (TERMASUK LOGO) -->
+            <!-- GROUP 2: TOKO -->
             <div class="settings-group">
                 <div class="settings-header" onclick="toggleSettings(this)">
                     <h3><i class="fas fa-store"></i> PENGATURAN TOKO</h3>
@@ -934,7 +934,7 @@
                         <div class="form-group">
                             <label>Emoji (jika tidak pakai gambar)</label>
                             <input type="text" class="form-control" id="produkEmoji" placeholder="🧥" style="color: #4a4a5a;">
-                            <small style="color:#666;">Contoh: 🧥 👟 💍 (placeholder gelap)</small>
+                            <small style="color:#666;">Contoh: 🧥 👟 💍</small>
                         </div>
                     </div>
                     <div>
@@ -1028,6 +1028,7 @@
             appId: "1:86797928744:web:cb85dd498c6cf3b659281d"
         };
 
+        // Inisialisasi Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const storage = firebase.storage();
@@ -1049,27 +1050,30 @@
         });
 
         database.ref('produk').on('value', (s) => {
-            produk = s.val() ? Object.values(s.val()) : [];
+            const data = s.val();
+            produk = data ? Object.values(data) : [];
             renderProduk();
             document.getElementById('totalProduk').textContent = produk.length;
         });
 
         database.ref('transaksi').on('value', (s) => {
-            transaksi = s.val() ? Object.values(s.val()) : [];
+            const data = s.val();
+            transaksi = data ? Object.values(data) : [];
             renderTransaksi();
             renderDashboard();
             document.getElementById('totalTransaksi').textContent = transaksi.length;
         });
 
         database.ref('testimoni').on('value', (s) => {
-            testimoni = s.val() ? Object.values(s.val()) : [];
+            const data = s.val();
+            testimoni = data ? Object.values(data) : [];
             renderTestimoni();
             renderDashboard();
             document.getElementById('totalTestimoni').textContent = testimoni.length;
         });
 
         database.ref('statistik/pengunjung').on('value', (s) => {
-            document.getElementById('totalPengunjung').textContent = s.numChildren();
+            document.getElementById('totalPengunjung').textContent = s.numChildren() || 0;
         });
 
         // ==================== FUNGSI WARNA ====================
@@ -1083,12 +1087,14 @@
                 const g = parseInt(settings.primaryColor.substr(3,2), 16);
                 const b = parseInt(settings.primaryColor.substr(5,2), 16);
                 
-                document.getElementById('redSlider').value = r;
-                document.getElementById('greenSlider').value = g;
-                document.getElementById('blueSlider').value = b;
-                document.getElementById('redValue').textContent = r;
-                document.getElementById('greenValue').textContent = g;
-                document.getElementById('blueValue').textContent = b;
+                if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+                    document.getElementById('redSlider').value = r;
+                    document.getElementById('greenSlider').value = g;
+                    document.getElementById('blueSlider').value = b;
+                    document.getElementById('redValue').textContent = r;
+                    document.getElementById('greenValue').textContent = g;
+                    document.getElementById('blueValue').textContent = b;
+                }
             }
         }
 
@@ -1122,12 +1128,14 @@
             const g = parseInt(hex.substr(3,2), 16);
             const b = parseInt(hex.substr(5,2), 16);
             
-            document.getElementById('redSlider').value = r;
-            document.getElementById('greenSlider').value = g;
-            document.getElementById('blueSlider').value = b;
-            document.getElementById('redValue').textContent = r;
-            document.getElementById('greenValue').textContent = g;
-            document.getElementById('blueValue').textContent = b;
+            if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+                document.getElementById('redSlider').value = r;
+                document.getElementById('greenSlider').value = g;
+                document.getElementById('blueSlider').value = b;
+                document.getElementById('redValue').textContent = r;
+                document.getElementById('greenValue').textContent = g;
+                document.getElementById('blueValue').textContent = b;
+            }
         };
 
         // ==================== UPDATE SETTINGS FORM ====================
@@ -1148,10 +1156,10 @@
             document.getElementById('facebook').value = settings.facebook || '';
             document.getElementById('email').value = settings.email || '';
             
-            if (settings.kelebihan) {
+            if (settings.kelebihan && Array.isArray(settings.kelebihan)) {
                 document.getElementById('kelebihan').value = settings.kelebihan.join(', ');
             }
-            if (settings.kekurangan) {
+            if (settings.kekurangan && Array.isArray(settings.kekurangan)) {
                 document.getElementById('kekurangan').value = settings.kekurangan.join(', ');
             }
             if (settings.storeLogo) {
@@ -1242,6 +1250,7 @@
             const file = e.target.files[0];
             if (!file) return;
             
+            selectedFile = file;
             const reader = new FileReader();
             reader.onload = (ev) => {
                 document.getElementById('previewStoreLogo').innerHTML = `<img src="${ev.target.result}" class="preview-image small">`;
@@ -1259,6 +1268,7 @@
             const file = e.target.files[0];
             if (!file) return;
             
+            selectedFile = file;
             const reader = new FileReader();
             reader.onload = (ev) => {
                 document.getElementById('previewProduk').innerHTML = `<img src="${ev.target.result}" class="preview-image">`;
@@ -1267,57 +1277,74 @@
             reader.readAsDataURL(file);
         };
 
-        // ==================== TAMBAH PRODUK ====================
+        // ==================== TAMBAH PRODUK (VERSI SEDERHANA YANG PASTI JALAN) ====================
 
-        document.getElementById('tambahProduk').onclick = async function() {
-            const nama = document.getElementById('produkNama').value;
-            const harga = parseInt(document.getElementById('produkHarga').value);
-            const emoji = document.getElementById('produkEmoji').value || '📦';
-            const deskripsi = document.getElementById('produkDeskripsi').value;
-            const link = document.getElementById('produkLink').value;
-            const gambarUrl = document.getElementById('produkGambarUrl').value;
+        document.getElementById('tambahProduk').onclick = function() {
+            // Ambil nilai form
+            const nama = document.getElementById('produkNama').value.trim();
+            const harga = document.getElementById('produkHarga').value.trim();
+            const emoji = document.getElementById('produkEmoji').value.trim() || '📦';
+            const deskripsi = document.getElementById('produkDeskripsi').value.trim();
+            const link = document.getElementById('produkLink').value.trim();
+            const gambarUrl = document.getElementById('produkGambarUrl').value.trim();
 
-            if (!nama || !harga) {
-                alert('Nama dan harga harus diisi!');
+            // Validasi sederhana
+            if (nama === '') {
+                alert('Nama produk harus diisi!');
+                return;
+            }
+            
+            if (harga === '' || isNaN(harga) || parseInt(harga) <= 0) {
+                alert('Harga harus diisi dengan angka yang valid!');
                 return;
             }
 
+            // Konfirmasi
+            if (!confirm('Tambahkan produk ini?')) {
+                return;
+            }
+
+            // Buat ID unik
             const id = 'p' + Date.now();
+
+            // Data produk
             const produkBaru = {
                 id: id,
                 nama: nama,
-                harga: harga,
+                harga: parseInt(harga),
                 deskripsi: deskripsi || 'Produk fashion galaxy',
                 link: link || '#',
                 logoEmoji: emoji,
                 logo: gambarUrl || null
             };
 
-            if (document.getElementById('fileProduk').files.length > 0) {
-                const file = document.getElementById('fileProduk').files[0];
-                const ref = storage.ref().child(`produk/${id}.jpg`);
-                await ref.put(file);
-                produkBaru.logo = await ref.getDownloadURL();
-            }
-
-            database.ref('produk/' + id).set(produkBaru).then(() => {
-                alert('Produk berhasil ditambahkan!');
-                document.getElementById('produkNama').value = '';
-                document.getElementById('produkHarga').value = '';
-                document.getElementById('produkEmoji').value = '';
-                document.getElementById('produkDeskripsi').value = '';
-                document.getElementById('produkLink').value = '';
-                document.getElementById('produkGambarUrl').value = '';
-                document.getElementById('previewProduk').innerHTML = '';
-                document.getElementById('fileProduk').value = '';
-            });
+            // Simpan ke Firebase
+            database.ref('produk/' + id).set(produkBaru)
+                .then(() => {
+                    alert('✅ Produk berhasil ditambahkan!');
+                    
+                    // Reset form
+                    document.getElementById('produkNama').value = '';
+                    document.getElementById('produkHarga').value = '';
+                    document.getElementById('produkEmoji').value = '';
+                    document.getElementById('produkDeskripsi').value = '';
+                    document.getElementById('produkLink').value = '';
+                    document.getElementById('produkGambarUrl').value = '';
+                    document.getElementById('previewProduk').innerHTML = '';
+                    document.getElementById('fileProduk').value = '';
+                })
+                .catch((error) => {
+                    alert('❌ Gagal: ' + error.message);
+                });
         };
 
         // ==================== HAPUS PRODUK ====================
 
         window.hapusProduk = function(id) {
             if (confirm('Yakin ingin menghapus produk ini?')) {
-                database.ref('produk/' + id).remove();
+                database.ref('produk/' + id).remove()
+                    .then(() => alert('Produk berhasil dihapus'))
+                    .catch(err => alert('Gagal: ' + err.message));
             }
         };
 
@@ -1338,7 +1365,10 @@
                 document.getElementById('previewProduk').innerHTML = `<img src="${p.logo}" class="preview-image">`;
             }
             
-            database.ref('produk/' + id).remove();
+            // Hapus produk lama setelah edit
+            if (confirm('Edit produk ini? Data lama akan dihapus.')) {
+                database.ref('produk/' + id).remove();
+            }
         };
 
         // ==================== RENDER PRODUK ====================
@@ -1347,33 +1377,44 @@
             const search = document.getElementById('searchProduk')?.value.toLowerCase() || '';
             let html = '';
             
-            produk.filter(p => p.nama.toLowerCase().includes(search)).forEach(p => {
-                html += `
-                    <div class="produk-item">
-                        <div class="produk-preview">
-                            ${p.logo ? `<img src="${p.logo}">` : `<span>${p.logoEmoji || '📦'}</span>`}
+            if (!produk || produk.length === 0) {
+                html = '<p style="text-align:center; padding:20px;">Belum ada produk</p>';
+            } else {
+                const filtered = produk.filter(p => p.nama && p.nama.toLowerCase().includes(search));
+                
+                filtered.forEach(p => {
+                    html += `
+                        <div class="produk-item">
+                            <div class="produk-preview">
+                                ${p.logo ? `<img src="${p.logo}">` : `<span>${p.logoEmoji || '📦'}</span>`}
+                            </div>
+                            <div class="produk-info">
+                                <h3>${p.nama || 'Produk'}</h3>
+                                <p>Rp ${p.harga ? p.harga.toLocaleString() : '0'}</p>
+                                <p style="font-size:12px; color:#999;">${p.deskripsi ? p.deskripsi.substring(0,100) : ''}${p.deskripsi && p.deskripsi.length > 100 ? '...' : ''}</p>
+                                <p style="font-size:11px; color:#666;">ID: ${p.id || 'N/A'}</p>
+                            </div>
+                            <div class="produk-actions">
+                                <button class="btn-icon" onclick="editProduk('${p.id}')"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon btn-icon-danger" onclick="hapusProduk('${p.id}')"><i class="fas fa-trash"></i></button>
+                            </div>
                         </div>
-                        <div class="produk-info">
-                            <h3>${p.nama}</h3>
-                            <p>Rp ${p.harga.toLocaleString()}</p>
-                            <p style="font-size:12px; color:#999;">${p.deskripsi.substring(0,100)}${p.deskripsi.length > 100 ? '...' : ''}</p>
-                            <p style="font-size:11px; color:#666;">ID: ${p.id}</p>
-                        </div>
-                        <div class="produk-actions">
-                            <button class="btn-icon" onclick="editProduk('${p.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-icon btn-icon-danger" onclick="hapusProduk('${p.id}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+                
+                if (filtered.length === 0) {
+                    html = '<p style="text-align:center; padding:20px;">Tidak ada produk yang cocok</p>';
+                }
+            }
             
-            document.getElementById('daftarProduk').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada produk</p>';
+            document.getElementById('daftarProduk').innerHTML = html;
         }
 
         // ==================== RENDER DASHBOARD ====================
 
         function renderDashboard() {
-            const transaksiTerbaru = transaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5);
+            // Transaksi terbaru
+            const transaksiTerbaru = transaksi ? transaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5) : [];
             let transaksiHtml = '';
             
             transaksiTerbaru.forEach(t => {
@@ -1382,7 +1423,7 @@
                     <div class="transaksi-item" style="margin-bottom:15px;">
                         <div class="transaksi-header">
                             <strong>${t.produk || 'Produk'}</strong>
-                            <span class="transaksi-status ${statusClass}">${t.status}</span>
+                            <span class="transaksi-status ${statusClass}">${t.status || 'pending'}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                             <span>💰 Rp ${t.harga?.toLocaleString() || '0'}</span>
@@ -1395,7 +1436,8 @@
             
             document.getElementById('transaksiTerbaru').innerHTML = transaksiHtml || '<p style="text-align:center;">Belum ada transaksi</p>';
             
-            const testimoniTerbaru = testimoni.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5);
+            // Testimoni terbaru
+            const testimoniTerbaru = testimoni ? testimoni.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5) : [];
             let testimoniHtml = '';
             
             testimoniTerbaru.forEach(t => {
@@ -1425,8 +1467,11 @@
             const filterStatus = document.getElementById('filterStatusTransaksi')?.value || 'all';
             const filterMetode = document.getElementById('filterMetodeTransaksi')?.value || 'all';
             
-            let filtered = transaksi.filter(t => 
-                (t.id.toLowerCase().includes(search) || (t.produk && t.produk.toLowerCase().includes(search))) &&
+            let filtered = transaksi ? transaksi.filter(t => 
+                (t.id && t.id.toLowerCase().includes(search)) || (t.produk && t.produk.toLowerCase().includes(search))
+            ) : [];
+            
+            filtered = filtered.filter(t => 
                 (filterStatus === 'all' || t.status === filterStatus) &&
                 (filterMetode === 'all' || t.metode === filterMetode)
             );
@@ -1443,9 +1488,9 @@
                         <div class="transaksi-header">
                             <div>
                                 <h3 style="color:#ffaa00; margin-bottom:5px;">${t.produk || 'Produk'}</h3>
-                                <span class="badge badge-info">ID: ${t.id}</span>
+                                <span class="badge badge-info">ID: ${t.id || 'N/A'}</span>
                             </div>
-                            <span class="transaksi-status ${statusClass}">${t.status.toUpperCase()}</span>
+                            <span class="transaksi-status ${statusClass}">${(t.status || 'pending').toUpperCase()}</span>
                         </div>
                         
                         <div class="transaksi-detail">
@@ -1463,7 +1508,7 @@
                             </div>
                             <div class="transaksi-detail-item">
                                 <span class="label">ID Pembeli</span>
-                                <span class="value">${t.visitorId?.substring(0,15)}...</span>
+                                <span class="value">${t.visitorId ? t.visitorId.substring(0,15) : 'N/A'}...</span>
                             </div>
                         </div>
                         
@@ -1497,30 +1542,32 @@
             const search = document.getElementById('searchTestimoni')?.value.toLowerCase() || '';
             let html = '';
             
-            testimoni.filter(t => t.produk?.toLowerCase().includes(search))
-                .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
-                .forEach(t => {
-                    html += `
-                        <div class="testimoni-item">
-                            <div class="testimoni-header">
-                                <div class="testimoni-avatar">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <div class="testimoni-info">
-                                    <h4>${t.produk || 'Produk'}</h4>
-                                    <p>${t.tanggal || '-'}</p>
-                                    <p style="font-size:11px; color:#666;">ID: ${t.id}</p>
-                                </div>
+            const filtered = testimoni ? testimoni.filter(t => t.produk && t.produk.toLowerCase().includes(search)) : [];
+            
+            filtered.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            filtered.forEach(t => {
+                html += `
+                    <div class="testimoni-item">
+                        <div class="testimoni-header">
+                            <div class="testimoni-avatar">
+                                <i class="fas fa-user"></i>
                             </div>
-                            
-                            <img src="${t.imageUrl}" class="testimoni-gambar" onclick="lihatGambar('${t.imageUrl}')">
-                            
-                            <div style="margin-top:15px;">
-                                <button class="btn-icon btn-icon-danger" onclick="hapusTestimoni('${t.id}')"><i class="fas fa-trash"></i></button>
+                            <div class="testimoni-info">
+                                <h4>${t.produk || 'Produk'}</h4>
+                                <p>${t.tanggal || '-'}</p>
+                                <p style="font-size:11px; color:#666;">ID: ${t.id || 'N/A'}</p>
                             </div>
                         </div>
-                    `;
-                });
+                        
+                        <img src="${t.imageUrl}" class="testimoni-gambar" onclick="lihatGambar('${t.imageUrl}')">
+                        
+                        <div style="margin-top:15px;">
+                            <button class="btn-icon btn-icon-danger" onclick="hapusTestimoni('${t.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
             
             document.getElementById('daftarTestimoni').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada testimoni</p>';
         }
@@ -1528,6 +1575,8 @@
         // ==================== UPDATE STATUS TRANSAKSI ====================
 
         window.updateStatus = function(id, status) {
+            if (!id) return;
+            
             database.ref('transaksi/' + id).update({ status: status }).then(() => {
                 if (status === 'sukses') {
                     database.ref('transaksi/' + id).once('value', (s) => {
@@ -1551,28 +1600,37 @@
                     });
                 }
                 alert('Status transaksi diubah ke ' + status);
-            });
+            }).catch(err => alert('Gagal: ' + err.message));
         };
 
         // ==================== HAPUS TRANSAKSI ====================
 
         window.hapusTransaksi = function(id) {
+            if (!id) return;
+            
             if (confirm('Yakin ingin menghapus transaksi ini?')) {
-                database.ref('transaksi/' + id).remove();
+                database.ref('transaksi/' + id).remove()
+                    .then(() => alert('Transaksi dihapus'))
+                    .catch(err => alert('Gagal: ' + err.message));
             }
         };
 
         // ==================== HAPUS TESTIMONI ====================
 
         window.hapusTestimoni = function(id) {
+            if (!id) return;
+            
             if (confirm('Hapus testimoni ini?')) {
-                database.ref('testimoni/' + id).remove();
+                database.ref('testimoni/' + id).remove()
+                    .then(() => alert('Testimoni dihapus'))
+                    .catch(err => alert('Gagal: ' + err.message));
             }
         };
 
         // ==================== LIHAT GAMBAR ====================
 
         window.lihatGambar = function(url) {
+            if (!url) return;
             document.getElementById('modalContent').innerHTML = `<img src="${url}">`;
             document.getElementById('modalGambar').classList.add('aktif');
         };
@@ -1606,7 +1664,8 @@
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 
                 this.classList.add('active');
-                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+                const tabId = this.dataset.tab;
+                document.getElementById('tab-' + tabId).classList.add('active');
             });
         });
 
@@ -1635,4 +1694,4 @@
         console.log('Panel Admin siap!');
     </script>
 </body>
-</html>
+    </html>
