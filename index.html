@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsalways • Panel Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #0f0f1a;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ffaa00;
+        }
+
+        .header h1 {
+            color: #ffaa00;
+            font-size: 28px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1a1a2e;
+            border: 1px solid #ffaa00;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffaa00;
+            margin: 10px 0;
+        }
+
+        /* SETTINGS GROUP - RAPIH HARUS DI TEKAN */
+        .settings-group {
+            background: #1a1a2e;
+            border: 1px solid #ffaa00;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .settings-header {
+            background: #0f0f1a;
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .settings-header:hover {
+            background: #2a2a3a;
+        }
+
+        .settings-header h3 {
+            color: #ffaa00;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-header i {
+            transition: transform 0.3s ease;
+        }
+
+        .settings-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .settings-content {
+            padding: 25px;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .settings-content.collapsed {
+            display: none;
+        }
+
+        .panel-section {
+            background: #1a1a2e;
+            border: 1px solid #ffaa00;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel-section h2 {
+            color: #ffaa00;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .panel-section h2 i {
+            margin-right: 10px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffaa00;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: #0f0f1a;
+            border: 1px solid #ffaa00;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #ffdd44;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #ffaa00;
+            border: none;
+            border-radius: 10px;
+            color: black;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-danger {
+            background: #ff4444;
+            color: white;
+        }
+
+        .btn-success {
+            background: #00cc88;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ff8800;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        /* COLOR PICKER */
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #ffaa00;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .color-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: white;
+        }
+
+        .color-option.active {
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        .color-code {
+            background: #0f0f1a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            border: 1px solid #ffaa00;
+        }
+
+        /* UPLOAD AREA */
+        .upload-area {
+            background: #0f0f1a;
+            border: 2px dashed #ffaa00;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: #1a1a2e;
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: #ffaa00;
+            margin-bottom: 10px;
+        }
+
+        .upload-area.small {
+            padding: 15px;
+        }
+
+        .upload-area.small i {
+            font-size: 24px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            border: 2px solid #ffaa00;
+            margin-top: 10px;
+        }
+
+        .preview-image.small {
+            max-height: 100px;
+        }
+
+        /* PRODUK LIST */
+        .produk-item {
+            background: #0f0f1a;
+            border: 1px solid #ffaa00;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .produk-preview {
+            width: 80px;
+            height: 80px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffaa00;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .produk-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .produk-preview span {
+            font-size: 32px;
+        }
+
+        .produk-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .produk-info h3 {
+            margin-bottom: 5px;
+            color: #ffaa00;
+        }
+
+        .produk-info p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .produk-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #ffaa00;
+            border: none;
+            color: black;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-icon-danger {
+            background: #ff4444;
+            color: white;
+        }
+
+        .btn-icon-success {
+            background: #00cc88;
+            color: white;
+        }
+
+        /* TRANSAKSI LIST */
+        .transaksi-item {
+            background: #0f0f1a;
+            border: 1px solid #ffaa00;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .transaksi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .transaksi-status {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .status-pending { background: #ffaa00; color: black; }
+        .status-sukses { background: #00cc88; color: white; }
+        .status-batal { background: #ff4444; color: white; }
+
+        .transaksi-detail {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #1a1a2e;
+            border-radius: 10px;
+        }
+
+        .transaksi-detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .transaksi-detail-item .label {
+            color: #ffaa00;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .transaksi-detail-item .value {
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .transaksi-bukti {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            border: 2px solid #ffaa00;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+
+        .transaksi-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        /* TESTIMONI LIST */
+        .testimoni-item {
+            background: #0f0f1a;
+            border: 1px solid #ffaa00;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .testimoni-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .testimoni-avatar {
+            width: 50px;
+            height: 50px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffaa00;
+            font-size: 24px;
+        }
+
+        .testimoni-info h4 {
+            color: #ffaa00;
+            margin-bottom: 5px;
+        }
+
+        .testimoni-info p {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .testimoni-gambar {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            border: 2px solid #ffaa00;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+
+        /* TAB MENU */
+        .tab-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: #1a1a2e;
+            border: 1px solid #ffaa00;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: #2a2a3a;
+        }
+
+        .tab-btn.active {
+            background: #ffaa00;
+            color: black;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            background: #0f0f1a;
+            border: 1px solid #ffaa00;
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #ffdd44;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal.aktif {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 10px;
+            border: 3px solid #ffaa00;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            background: #ff4444;
+        }
+
+        /* BADGE */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-info {
+            background: #3399ff;
+            color: white;
+        }
+
+        /* ALERT */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #00cc88;
+            color: white;
+        }
+
+        .alert-danger {
+            background: #ff4444;
+            color: white;
+        }
+
+        .alert-warning {
+            background: #ffaa00;
+            color: black;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .produk-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .produk-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-crown"></i> ARSALWAYS PANEL ADMIN</h1>
+            <div>
+                <span id="onlineStatus" style="color:#00cc88;"><i class="fas fa-circle"></i> Online</span>
+            </div>
+        </div>
+
+        <!-- STATISTIK -->
+        <div class="stats">
+            <div class="stat-card">
+                <i class="fas fa-store fa-2x" style="color:#ffaa00;"></i>
+                <div class="stat-number" id="totalProduk">0</div>
+                <div>Total Produk</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users fa-2x" style="color:#ffaa00;"></i>
+                <div class="stat-number" id="totalPengunjung">0</div>
+                <div>Pengunjung</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-shopping-cart fa-2x" style="color:#ffaa00;"></i>
+                <div class="stat-number" id="totalTransaksi">0</div>
+                <div>Transaksi</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-star fa-2x" style="color:#ffaa00;"></i>
+                <div class="stat-number" id="totalTestimoni">0</div>
+                <div>Testimoni</div>
+            </div>
+        </div>
+
+        <!-- TAB MENU -->
+        <div class="tab-menu">
+            <div class="tab-btn active" data-tab="dashboard">📊 DASHBOARD</div>
+            <div class="tab-btn" data-tab="settings">⚙️ SETTINGS</div>
+            <div class="tab-btn" data-tab="produk">📦 PRODUK</div>
+            <div class="tab-btn" data-tab="transaksi">📊 TRANSAKSI</div>
+            <div class="tab-btn" data-tab="testimoni">📸 TESTIMONI</div>
+            <div class="tab-btn" data-tab="pending">⏳ PENDING</div>
+        </div>
+
+        <!-- TAB DASHBOARD -->
+        <div class="tab-content active" id="tab-dashboard">
+            <div class="panel-section">
+                <h2><i class="fas fa-chart-line"></i> AKTIVITAS TERBARU</h2>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color:#ffaa00; margin-bottom:15px;">📦 Transaksi Terbaru</h3>
+                    <div id="transaksiTerbaru"></div>
+                </div>
+                
+                <div>
+                    <h3 style="color:#ffaa00; margin-bottom:15px;">📸 Testimoni Terbaru</h3>
+                    <div id="testimoniTerbaru"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB SETTINGS - DENGAN GROUP COLLAPSIBLE -->
+        <div class="tab-content" id="tab-settings">
+            <!-- GROUP 1: TEMA -->
+            <div class="settings-group">
+                <div class="settings-header" onclick="toggleSettings(this)">
+                    <h3><i class="fas fa-palette"></i> WARNA TEMA</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="settings-content">
+                    <div class="grid-2">
+                        <div>
+                            <div class="form-group">
+                                <label>Warna Utama (Primary)</label>
+                                <div class="color-picker-container">
+                                    <div class="color-circle" id="primaryColorPreview" style="background: #ffaa00;"></div>
+                                    <input type="text" class="form-control" id="primaryColorInput" value="#ffaa00" placeholder="#ffaa00">
+                                </div>
+                                <div class="color-options" id="primaryColorOptions">
+                                    <div class="color-option" style="background: #ffaa00;" data-color="#ffaa00"></div>
+                                    <div class="color-option" style="background: #6b46c1;" data-color="#6b46c1"></div>
+                                    <div class="color-option" style="background: #00cc88;" data-color="#00cc88"></div>
+                                    <div class="color-option" style="background: #ff4444;" data-color="#ff4444"></div>
+                                    <div class="color-option" style="background: #3399ff;" data-color="#3399ff"></div>
+                                    <div class="color-option" style="background: #ff66b2;" data-color="#ff66b2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label>Preview</label>
+                                <div style="background: var(--primary); padding: 20px; border-radius: 10px; color: white; text-align: center;" id="colorPreview">
+                                    Contoh Teks dengan Warna Primary
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" id="simpanWarna"><i class="fas fa-save"></i> SIMPAN WARNA</button>
+                </div>
+            </div>
+
+            <!-- GROUP 2: TOKO -->
+            <div class="settings-group">
+                <div class="settings-header" onclick="toggleSettings(this)">
+                    <h3><i class="fas fa-store"></i> PENGATURAN TOKO</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="settings-content">
+                    <div class="grid-2">
+                        <div>
+                            <div class="form-group">
+                                <label>Nama Toko</label>
+                                <input type="text" class="form-control" id="storeName" placeholder="ARSALWAYS">
+                            </div>
+                            <div class="form-group">
+                                <label>Deskripsi Toko</label>
+                                <textarea class="form-control" id="storeDescription" rows="4" placeholder="Deskripsi toko..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Logo Toko</label>
+                                <div class="upload-area small" id="uploadStoreLogo">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Upload Logo</p>
+                                </div>
+                                <input type="file" id="fileStoreLogo" accept="image/*" style="display: none;">
+                                <div id="previewStoreLogo"></div>
+                                <small style="color:#999;">Atau gunakan URL</small>
+                                <input type="text" class="form-control" id="storeLogoUrl" placeholder="https://...">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label>Nomor WhatsApp CS</label>
+                                <input type="text" class="form-control" id="waNumber" placeholder="6281234567890">
+                            </div>
+                            <div class="form-group">
+                                <label>Nomor DANA</label>
+                                <input type="text" class="form-control" id="danaNumber" placeholder="0895-1234-5678">
+                            </div>
+                            <div class="form-group">
+                                <label>Nomor GOPAY</label>
+                                <input type="text" class="form-control" id="gopayNumber" placeholder="0857-9876-5432">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" id="simpanSettings"><i class="fas fa-save"></i> SIMPAN SETTINGS</button>
+                </div>
+            </div>
+
+            <!-- GROUP 3: QRIS -->
+            <div class="settings-group">
+                <div class="settings-header" onclick="toggleSettings(this)">
+                    <h3><i class="fas fa-qrcode"></i> QRIS SETTINGS</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="settings-content">
+                    <div class="form-group">
+                        <label>API Key Payinaja</label>
+                        <input type="text" class="form-control" id="apiKey" value="RA_46617fdd55f4de340fe92126bbbd03cf">
+                    </div>
+                    <div class="form-group">
+                        <label>Biaya QRIS (Rp)</label>
+                        <input type="number" class="form-control" id="biayaQRIS" value="850" placeholder="850">
+                    </div>
+                    <div class="form-group">
+                        <label>Pajak (Rp)</label>
+                        <input type="number" class="form-control" id="pajak" value="750" placeholder="750">
+                    </div>
+                    <button class="btn" id="simpanQRIS"><i class="fas fa-save"></i> SIMPAN QRIS SETTINGS</button>
+                    <button class="btn btn-warning" id="testApi" style="margin-top:10px;"><i class="fas fa-plug"></i> TEST KONEKSI API</button>
+                </div>
+            </div>
+
+            <!-- GROUP 4: INFORMASI -->
+            <div class="settings-group">
+                <div class="settings-header" onclick="toggleSettings(this)">
+                    <h3><i class="fas fa-info-circle"></i> INFORMASI TOKO</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="settings-content">
+                    <div class="form-group">
+                        <label>Kelebihan Web (pisahkan dengan koma)</label>
+                        <textarea class="form-control" id="kelebihan" rows="3" placeholder="Transaksi Real-time, Statistik Pengunjung, QRIS Otomatis..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Kekurangan Web (pisahkan dengan koma)</label>
+                        <textarea class="form-control" id="kekurangan" rows="3" placeholder="Bergantung internet, Transfer manual..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Tahun Didirikan</label>
+                        <input type="text" class="form-control" id="tahunDidirikan" value="2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Lokasi</label>
+                        <input type="text" class="form-control" id="lokasi" value="Jakarta, Indonesia">
+                    </div>
+                    <button class="btn" id="simpanInfo"><i class="fas fa-save"></i> SIMPAN INFORMASI</button>
+                </div>
+            </div>
+
+            <!-- GROUP 5: SOSIAL MEDIA -->
+            <div class="settings-group">
+                <div class="settings-header" onclick="toggleSettings(this)">
+                    <h3><i class="fas fa-share-alt"></i> SOSIAL MEDIA</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="settings-content">
+                    <div class="grid-2">
+                        <div>
+                            <div class="form-group">
+                                <label>Telegram</label>
+                                <input type="text" class="form-control" id="telegram" value="arsalcs">
+                            </div>
+                            <div class="form-group">
+                                <label>Instagram</label>
+                                <input type="text" class="form-control" id="instagram" value="arsalways">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label>Facebook</label>
+                                <input type="text" class="form-control" id="facebook" value="arsalways">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" id="email" value="cs@arsalways.com">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" id="simpanSosmed"><i class="fas fa-save"></i> SIMPAN SOSIAL MEDIA</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB PRODUK -->
+        <div class="tab-content" id="tab-produk">
+            <div class="panel-section">
+                <h2><i class="fas fa-plus-circle"></i> TAMBAH PRODUK</h2>
+                <div class="grid-2">
+                    <div>
+                        <div class="form-group">
+                            <label>Nama Produk</label>
+                            <input type="text" class="form-control" id="produkNama" placeholder="COSMO HOODIE">
+                        </div>
+                        <div class="form-group">
+                            <label>Harga (Rp)</label>
+                            <input type="number" class="form-control" id="produkHarga" placeholder="250000">
+                        </div>
+                        <div class="form-group">
+                            <label>Emoji (jika tidak pakai gambar)</label>
+                            <input type="text" class="form-control" id="produkEmoji" placeholder="🧥">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Deskripsi</label>
+                            <textarea class="form-control" id="produkDeskripsi" rows="3" placeholder="Deskripsi produk..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Link Produk</label>
+                            <input type="text" class="form-control" id="produkLink" placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Gambar/Logo Produk</label>
+                    <div class="upload-area" id="uploadProduk">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Upload Gambar Produk (Klik di sini)</p>
+                    </div>
+                    <input type="file" id="fileProduk" accept="image/*" style="display: none;">
+                    <div id="previewProduk"></div>
+                    <small style="color:#999;">Atau gunakan URL gambar</small>
+                    <input type="text" class="form-control" id="produkGambarUrl" placeholder="https://...">
+                </div>
+                
+                <button class="btn" id="tambahProduk"><i class="fas fa-plus"></i> TAMBAH PRODUK</button>
+            </div>
+
+            <div class="panel-section">
+                <h2><i class="fas fa-list"></i> DAFTAR PRODUK</h2>
+                <input type="text" class="search-box" id="searchProduk" placeholder="Cari produk...">
+                <div id="daftarProduk"></div>
+            </div>
+        </div>
+
+        <!-- TAB TRANSAKSI -->
+        <div class="tab-content" id="tab-transaksi">
+            <div class="panel-section">
+                <h2><i class="fas fa-history"></i> SEMUA TRANSAKSI</h2>
+                <div class="grid-2" style="margin-bottom:20px;">
+                    <div>
+                        <label>Filter Status</label>
+                        <select class="form-control" id="filterStatusTransaksi">
+                            <option value="all">Semua</option>
+                            <option value="sukses">Sukses</option>
+                            <option value="pending">Pending</option>
+                            <option value="batal">Batal</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Filter Metode</label>
+                        <select class="form-control" id="filterMetodeTransaksi">
+                            <option value="all">Semua</option>
+                            <option value="QRIS">QRIS</option>
+                            <option value="DANA">DANA</option>
+                            <option value="GOPAY">GOPAY</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="text" class="search-box" id="searchTransaksi" placeholder="Cari ID transaksi atau nama produk...">
+                <div id="daftarTransaksi"></div>
+            </div>
+        </div>
+
+        <!-- TAB TESTIMONI -->
+        <div class="tab-content" id="tab-testimoni">
+            <div class="panel-section">
+                <h2><i class="fas fa-star"></i> SEMUA TESTIMONI</h2>
+                <input type="text" class="search-box" id="searchTestimoni" placeholder="Cari testimoni...">
+                <div id="daftarTestimoni"></div>
+            </div>
+        </div>
+
+        <!-- TAB PENDING -->
+        <div class="tab-content" id="tab-pending">
+            <div class="panel-section">
+                <h2><i class="fas fa-clock"></i> BUKTI PEMBAYARAN PENDING</h2>
+                <div id="daftarPending"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LIHAT GAMBAR -->
+    <div class="modal" id="modalGambar">
+        <span class="close-modal" id="closeModal">&times;</span>
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <script>
+        // FIREBASE CONFIG
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAF3B3_Bq-Q9ulQdxfXHkCBqMTIDlx0sqY", 
+            authDomain: "panel-user-b78ff.firebaseapp.com", 
+            databaseURL: "https://panel-user-b78ff-default-rtdb.firebaseio.com", 
+            projectId: "panel-user-b78ff", 
+            storageBucket: "panel-user-b78ff.firebasestorage.app", 
+            messagingSenderId: "86797928744", 
+            appId: "1:86797928744:web:cb85dd498c6cf3b659281d"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const storage = firebase.storage();
+
+        // GLOBAL VARIABLES
+        let settings = {};
+        let produk = [];
+        let transaksi = [];
+        let testimoni = [];
+        let selectedFile = null;
+        let currentUploadType = '';
+
+        // AMBIL DATA
+        database.ref('settings').on('value', (s) => {
+            settings = s.val() || {};
+            updateSettingsForm();
+            updateWarna();
+        });
+
+        database.ref('produk').on('value', (s) => {
+            produk = s.val() ? Object.values(s.val()) : [];
+            renderProduk();
+            document.getElementById('totalProduk').textContent = produk.length;
+        });
+
+        database.ref('transaksi').on('value', (s) => {
+            transaksi = s.val() ? Object.values(s.val()) : [];
+            renderTransaksi();
+            renderPending();
+            renderDashboard();
+            document.getElementById('totalTransaksi').textContent = transaksi.length;
+        });
+
+        database.ref('testimoni').on('value', (s) => {
+            testimoni = s.val() ? Object.values(s.val()) : [];
+            renderTestimoni();
+            renderDashboard();
+            document.getElementById('totalTestimoni').textContent = testimoni.length;
+        });
+
+        database.ref('statistik/pengunjung').on('value', (s) => {
+            document.getElementById('totalPengunjung').textContent = s.numChildren();
+        });
+
+        // UPDATE WARNA
+        function updateWarna() {
+            if (settings.primaryColor) {
+                document.documentElement.style.setProperty('--primary', settings.primaryColor);
+                document.getElementById('primaryColorPreview').style.background = settings.primaryColor;
+                document.getElementById('primaryColorInput').value = settings.primaryColor;
+                document.getElementById('colorPreview').style.background = settings.primaryColor;
+            }
+        }
+
+        // UPDATE SETTINGS FORM
+        function updateSettingsForm() {
+            document.getElementById('storeName').value = settings.storeName || 'ARSALWAYS';
+            document.getElementById('storeDescription').value = settings.storeDescription || '<i class="fas fa-star"></i> Galaxy Fashion • Neon Style • Future Wear <i class="fas fa-star"></i>';
+            document.getElementById('waNumber').value = settings.waNumber || '6281234567890';
+            document.getElementById('danaNumber').value = settings.danaNumber || '0895-1234-5678';
+            document.getElementById('gopayNumber').value = settings.gopayNumber || '0857-9876-5432';
+            document.getElementById('biayaQRIS').value = settings.biayaQRIS || '850';
+            document.getElementById('pajak').value = settings.pajak || '750';
+            document.getElementById('apiKey').value = settings.apiKey || 'RA_46617fdd55f4de340fe92126bbbd03cf';
+            document.getElementById('tahunDidirikan').value = settings.tahunDidirikan || '2026';
+            document.getElementById('lokasi').value = settings.lokasi || 'Jakarta, Indonesia';
+            document.getElementById('telegram').value = settings.telegram || 'arsalcs';
+            document.getElementById('instagram').value = settings.instagram || 'arsalways';
+            document.getElementById('facebook').value = settings.facebook || 'arsalways';
+            document.getElementById('email').value = settings.email || 'cs@arsalways.com';
+            
+            if (settings.kelebihan) {
+                document.getElementById('kelebihan').value = settings.kelebihan.join(', ');
+            }
+            if (settings.kekurangan) {
+                document.getElementById('kekurangan').value = settings.kekurangan.join(', ');
+            }
+            if (settings.storeLogo) {
+                document.getElementById('storeLogoUrl').value = settings.storeLogo;
+                document.getElementById('previewStoreLogo').innerHTML = `<img src="${settings.storeLogo}" class="preview-image small">`;
+            }
+        }
+
+        // TOGGLE SETTINGS
+        window.toggleSettings = function(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('i');
+            
+            content.classList.toggle('collapsed');
+            header.classList.toggle('collapsed');
+            
+            if (content.classList.contains('collapsed')) {
+                icon.style.transform = 'rotate(-90deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        };
+
+        // WARNA PICKER
+        const colorOptions = document.querySelectorAll('.color-option');
+        colorOptions.forEach(opt => {
+            opt.addEventListener('click', function() {
+                const color = this.dataset.color;
+                document.getElementById('primaryColorInput').value = color;
+                document.getElementById('primaryColorPreview').style.background = color;
+                
+                colorOptions.forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.getElementById('primaryColorInput').addEventListener('input', function() {
+            document.getElementById('primaryColorPreview').style.background = this.value;
+        });
+
+        // SIMPAN WARNA
+        document.getElementById('simpanWarna').onclick = function() {
+            const color = document.getElementById('primaryColorInput').value;
+            database.ref('settings/primaryColor').set(color);
+            alert('Warna berhasil disimpan!');
+        };
+
+        // SIMPAN SETTINGS
+        document.getElementById('simpanSettings').onclick = function() {
+            const newSettings = {
+                storeName: document.getElementById('storeName').value,
+                storeDescription: document.getElementById('storeDescription').value,
+                waNumber: document.getElementById('waNumber').value,
+                danaNumber: document.getElementById('danaNumber').value,
+                gopayNumber: document.getElementById('gopayNumber').value,
+                storeLogo: document.getElementById('storeLogoUrl').value || settings.storeLogo,
+                primaryColor: document.getElementById('primaryColorInput').value
+            };
+            
+            database.ref('settings').update(newSettings);
+            alert('Settings berhasil disimpan!');
+        };
+
+        // SIMPAN QRIS
+        document.getElementById('simpanQRIS').onclick = function() {
+            database.ref('settings').update({
+                biayaQRIS: parseInt(document.getElementById('biayaQRIS').value) || 850,
+                pajak: parseInt(document.getElementById('pajak').value) || 750,
+                apiKey: document.getElementById('apiKey').value
+            });
+            alert('QRIS Settings disimpan!');
+        };
+
+        // SIMPAN INFO
+        document.getElementById('simpanInfo').onclick = function() {
+            const kelebihan = document.getElementById('kelebihan').value.split(',').map(s => s.trim());
+            const kekurangan = document.getElementById('kekurangan').value.split(',').map(s => s.trim());
+            
+            database.ref('settings').update({
+                kelebihan: kelebihan,
+                kekurangan: kekurangan,
+                tahunDidirikan: document.getElementById('tahunDidirikan').value,
+                lokasi: document.getElementById('lokasi').value
+            });
+            alert('Informasi disimpan!');
+        };
+
+        // SIMPAN SOSMED
+        document.getElementById('simpanSosmed').onclick = function() {
+            database.ref('settings').update({
+                telegram: document.getElementById('telegram').value,
+                instagram: document.getElementById('instagram').value,
+                facebook: document.getElementById('facebook').value,
+                email: document.getElementById('email').value
+            });
+            alert('Sosial media disimpan!');
+        };
+
+        // UPLOAD LOGO TOKO
+        document.getElementById('uploadStoreLogo').onclick = () => {
+            currentUploadType = 'storeLogo';
+            document.getElementById('fileStoreLogo').click();
+        };
+
+        document.getElementById('fileStoreLogo').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('previewStoreLogo').innerHTML = `<img src="${ev.target.result}" class="preview-image small">`;
+                document.getElementById('storeLogoUrl').value = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // UPLOAD PRODUK
+        document.getElementById('uploadProduk').onclick = () => {
+            currentUploadType = 'produk';
+            document.getElementById('fileProduk').click();
+        };
+
+        document.getElementById('fileProduk').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('previewProduk').innerHTML = `<img src="${ev.target.result}" class="preview-image">`;
+                document.getElementById('produkGambarUrl').value = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // TAMBAH PRODUK
+        document.getElementById('tambahProduk').onclick = async function() {
+            const nama = document.getElementById('produkNama').value;
+            const harga = parseInt(document.getElementById('produkHarga').value);
+            const emoji = document.getElementById('produkEmoji').value || '📦';
+            const deskripsi = document.getElementById('produkDeskripsi').value;
+            const link = document.getElementById('produkLink').value;
+            const gambarUrl = document.getElementById('produkGambarUrl').value;
+
+            if (!nama || !harga) {
+                alert('Nama dan harga harus diisi!');
+                return;
+            }
+
+            const id = 'p' + Date.now();
+            const produkBaru = {
+                id: id,
+                nama: nama,
+                harga: harga,
+                deskripsi: deskripsi || 'Produk fashion galaxy',
+                link: link || '#',
+                logoEmoji: emoji,
+                logo: gambarUrl || null
+            };
+
+            // Jika ada file yang diupload
+            if (document.getElementById('fileProduk').files.length > 0) {
+                const file = document.getElementById('fileProduk').files[0];
+                const ref = storage.ref().child(`produk/${id}.jpg`);
+                await ref.put(file);
+                produkBaru.logo = await ref.getDownloadURL();
+            }
+
+            database.ref('produk/' + id).set(produkBaru).then(() => {
+                alert('Produk berhasil ditambahkan!');
+                document.getElementById('produkNama').value = '';
+                document.getElementById('produkHarga').value = '';
+                document.getElementById('produkEmoji').value = '';
+                document.getElementById('produkDeskripsi').value = '';
+                document.getElementById('produkLink').value = '';
+                document.getElementById('produkGambarUrl').value = '';
+                document.getElementById('previewProduk').innerHTML = '';
+                document.getElementById('fileProduk').value = '';
+            });
+        };
+
+        // HAPUS PRODUK
+        window.hapusProduk = function(id) {
+            if (confirm('Yakin ingin menghapus produk ini?')) {
+                database.ref('produk/' + id).remove();
+            }
+        };
+
+        // EDIT PRODUK
+        window.editProduk = function(id) {
+            const p = produk.find(p => p.id === id);
+            if (!p) return;
+            
+            document.getElementById('produkNama').value = p.nama;
+            document.getElementById('produkHarga').value = p.harga;
+            document.getElementById('produkEmoji').value = p.logoEmoji || '';
+            document.getElementById('produkDeskripsi').value = p.deskripsi;
+            document.getElementById('produkLink').value = p.link;
+            document.getElementById('produkGambarUrl').value = p.logo || '';
+            
+            if (p.logo) {
+                document.getElementById('previewProduk').innerHTML = `<img src="${p.logo}" class="preview-image">`;
+            }
+            
+            // Hapus produk lama setelah edit
+            database.ref('produk/' + id).remove();
+        };
+
+        // RENDER PRODUK
+        function renderProduk() {
+            const search = document.getElementById('searchProduk')?.value.toLowerCase() || '';
+            let html = '';
+            
+            produk.filter(p => p.nama.toLowerCase().includes(search)).forEach(p => {
+                html += `
+                    <div class="produk-item">
+                        <div class="produk-preview">
+                            ${p.logo ? `<img src="${p.logo}">` : `<span>${p.logoEmoji || '📦'}</span>`}
+                        </div>
+                        <div class="produk-info">
+                            <h3>${p.nama}</h3>
+                            <p>Rp ${p.harga.toLocaleString()}</p>
+                            <p style="font-size:12px; color:#999;">${p.deskripsi.substring(0,100)}${p.deskripsi.length > 100 ? '...' : ''}</p>
+                            <p style="font-size:11px; color:#666;">ID: ${p.id}</p>
+                        </div>
+                        <div class="produk-actions">
+                            <button class="btn-icon" onclick="editProduk('${p.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-icon-danger" onclick="hapusProduk('${p.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('daftarProduk').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada produk</p>';
+        }
+
+        // RENDER DASHBOARD
+        function renderDashboard() {
+            // Transaksi terbaru
+            const transaksiTerbaru = transaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5);
+            let transaksiHtml = '';
+            
+            transaksiTerbaru.forEach(t => {
+                const statusClass = t.status === 'sukses' ? 'status-sukses' : (t.status === 'batal' ? 'status-batal' : 'status-pending');
+                transaksiHtml += `
+                    <div class="transaksi-item" style="margin-bottom:15px;">
+                        <div class="transaksi-header">
+                            <strong>${t.produk || 'Produk'}</strong>
+                            <span class="transaksi-status ${statusClass}">${t.status}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                            <span>💰 Rp ${t.harga?.toLocaleString() || '0'}</span>
+                            <span>💳 ${t.metode || '-'}</span>
+                            <span>📅 ${t.tanggal || '-'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('transaksiTerbaru').innerHTML = transaksiHtml || '<p style="text-align:center;">Belum ada transaksi</p>';
+            
+            // Testimoni terbaru
+            const testimoniTerbaru = testimoni.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5);
+            let testimoniHtml = '';
+            
+            testimoniTerbaru.forEach(t => {
+                testimoniHtml += `
+                    <div class="testimoni-item" style="margin-bottom:15px;">
+                        <div class="testimoni-header">
+                            <div class="testimoni-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="testimoni-info">
+                                <h4>${t.produk || 'Produk'}</h4>
+                                <p>${t.tanggal || '-'}</p>
+                            </div>
+                        </div>
+                        <img src="${t.imageUrl}" class="testimoni-gambar" style="max-height:150px;" onclick="lihatGambar('${t.imageUrl}')">
+                    </div>
+                `;
+            });
+            
+            document.getElementById('testimoniTerbaru').innerHTML = testimoniHtml || '<p style="text-align:center;">Belum ada testimoni</p>';
+        }
+
+        // RENDER TRANSAKSI
+        function renderTransaksi() {
+            const search = document.getElementById('searchTransaksi')?.value.toLowerCase() || '';
+            const filterStatus = document.getElementById('filterStatusTransaksi')?.value || 'all';
+            const filterMetode = document.getElementById('filterMetodeTransaksi')?.value || 'all';
+            
+            let filtered = transaksi.filter(t => 
+                (t.id.toLowerCase().includes(search) || (t.produk && t.produk.toLowerCase().includes(search))) &&
+                (filterStatus === 'all' || t.status === filterStatus) &&
+                (filterMetode === 'all' || t.metode === filterMetode)
+            );
+            
+            filtered.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            let html = '';
+            
+            filtered.forEach(t => {
+                const statusClass = t.status === 'sukses' ? 'status-sukses' : (t.status === 'batal' ? 'status-batal' : 'status-pending');
+                
+                html += `
+                    <div class="transaksi-item">
+                        <div class="transaksi-header">
+                            <div>
+                                <h3 style="color:#ffaa00; margin-bottom:5px;">${t.produk || 'Produk'}</h3>
+                                <span class="badge badge-info">ID: ${t.id}</span>
+                            </div>
+                            <span class="transaksi-status ${statusClass}">${t.status.toUpperCase()}</span>
+                        </div>
+                        
+                        <div class="transaksi-detail">
+                            <div class="transaksi-detail-item">
+                                <span class="label">Harga</span>
+                                <span class="value">Rp ${t.harga?.toLocaleString() || '0'}</span>
+                            </div>
+                            <div class="transaksi-detail-item">
+                                <span class="label">Metode</span>
+                                <span class="value">${t.metode || '-'}</span>
+                            </div>
+                            <div class="transaksi-detail-item">
+                                <span class="label">Tanggal</span>
+                                <span class="value">${t.tanggal || '-'}</span>
+                            </div>
+                            <div class="transaksi-detail-item">
+                                <span class="label">ID Pembeli</span>
+                                <span class="value">${t.visitorId?.substring(0,15)}...</span>
+                            </div>
+                        </div>
+                        
+                        ${t.buktiUrl ? `
+                            <div>
+                                <p style="color:#ffaa00; margin-bottom:10px;">📸 Bukti Transfer:</p>
+                                <img src="${t.buktiUrl}" class="transaksi-bukti" onclick="lihatGambar('${t.buktiUrl}')">
+                            </div>
+                        ` : ''}
+                        
+                        <div class="transaksi-actions">
+                            <a href="${t.link || '#'}" target="_blank" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Lihat Produk</a>
+                            
+                            ${t.status === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="updateStatus('${t.id}', 'sukses')"><i class="fas fa-check"></i> Terima</button>
+                                <button class="btn btn-danger btn-sm" onclick="updateStatus('${t.id}', 'batal')"><i class="fas fa-times"></i> Tolak</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('daftarTransaksi').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada transaksi</p>';
+        }
+
+        // RENDER PENDING
+        function renderPending() {
+            const pending = transaksi.filter(t => t.status === 'pending' && t.buktiUrl);
+            let html = '';
+            
+            pending.forEach(t => {
+                html += `
+                    <div class="transaksi-item">
+                        <div class="transaksi-header">
+                            <h3 style="color:#ffaa00;">${t.produk || 'Produk'}</h3>
+                            <span class="transaksi-status status-pending">PENDING</span>
+                        </div>
+                        
+                        <div class="transaksi-detail">
+                            <div>ID: ${t.id}</div>
+                            <div>Rp ${t.harga?.toLocaleString() || '0'}</div>
+                            <div>${t.metode || '-'}</div>
+                            <div>${t.tanggal || '-'}</div>
+                        </div>
+                        
+                        <img src="${t.buktiUrl}" class="transaksi-bukti" onclick="lihatGambar('${t.buktiUrl}')">
+                        
+                        <div class="transaksi-actions">
+                            <button class="btn btn-success" onclick="updateStatus('${t.id}', 'sukses')"><i class="fas fa-check"></i> TERIMA & PUBLISH TESTIMONI</button>
+                            <button class="btn btn-danger" onclick="updateStatus('${t.id}', 'batal')"><i class="fas fa-times"></i> TOLAK</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('daftarPending').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada pending</p>';
+        }
+
+        // RENDER TESTIMONI
+        function renderTestimoni() {
+            const search = document.getElementById('searchTestimoni')?.value.toLowerCase() || '';
+            let html = '';
+            
+            testimoni.filter(t => t.produk?.toLowerCase().includes(search))
+                .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
+                .forEach(t => {
+                    html += `
+                        <div class="testimoni-item">
+                            <div class="testimoni-header">
+                                <div class="testimoni-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="testimoni-info">
+                                    <h4>${t.produk || 'Produk'}</h4>
+                                    <p>${t.tanggal || '-'}</p>
+                                    <p style="font-size:11px; color:#666;">ID: ${t.id}</p>
+                                </div>
+                            </div>
+                            
+                            <img src="${t.imageUrl}" class="testimoni-gambar" onclick="lihatGambar('${t.imageUrl}')">
+                            
+                            <div style="margin-top:15px;">
+                                <button class="btn-icon btn-icon-danger" onclick="hapusTestimoni('${t.id}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            
+            document.getElementById('daftarTestimoni').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada testimoni</p>';
+        }
+
+        // UPDATE STATUS TRANSAKSI
+        window.updateStatus = function(id, status) {
+            database.ref('transaksi/' + id).update({ status: status }).then(() => {
+                if (status === 'sukses') {
+                    // Ambil data transaksi untuk testimoni
+                    database.ref('transaksi/' + id).once('value', (s) => {
+                        const trx = s.val();
+                        if (trx && trx.buktiUrl) {
+                            database.ref('testimoni/' + id).set({
+                                id: id,
+                                produkId: trx.produkId,
+                                produk: trx.produk,
+                                produkLogo: trx.produkLogo,
+                                imageUrl: trx.buktiUrl,
+                                tanggal: new Date().toLocaleString('id-ID', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })
+                            });
+                        }
+                    });
+                }
+                alert('Status transaksi diubah ke ' + status);
+            });
+        };
+
+        // HAPUS TESTIMONI
+        window.hapusTestimoni = function(id) {
+            if (confirm('Hapus testimoni ini?')) {
+                database.ref('testimoni/' + id).remove();
+            }
+        };
+
+        // LIHAT GAMBAR
+        window.lihatGambar = function(url) {
+            document.getElementById('modalContent').innerHTML = `<img src="${url}">`;
+            document.getElementById('modalGambar').classList.add('aktif');
+        };
+
+        document.getElementById('closeModal').onclick = function() {
+            document.getElementById('modalGambar').classList.remove('aktif');
+        };
+
+        window.onclick = function(e) {
+            if (e.target === document.getElementById('modalGambar')) {
+                document.getElementById('modalGambar').classList.remove('aktif');
+            }
+        };
+
+        // SEARCH EVENT
+        document.getElementById('searchProduk')?.addEventListener('input', renderProduk);
+        document.getElementById('searchTransaksi')?.addEventListener('input', renderTransaksi);
+        document.getElementById('searchTestimoni')?.addEventListener('input', renderTestimoni);
+        
+        // FILTER EVENT
+        document.getElementById('filterStatusTransaksi')?.addEventListener('change', renderTransaksi);
+        document.getElementById('filterMetodeTransaksi')?.addEventListener('change', renderTransaksi);
+
+        // TAB MENU
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // TEST API
+        document.getElementById('testApi').onclick = async function() {
+            try {
+                const response = await fetch('qris_handler.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: 10000 })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    alert('✅ API Connection OK!');
+                } else {
+                    alert('❌ API Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                alert('❌ Gagal konek ke API: ' + e.message);
+            }
+        };
+
+        // INIT
+        console.log('Panel Admin siap!');
+    </script>
+</body>
+  </html>
