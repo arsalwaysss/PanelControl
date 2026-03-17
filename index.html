@@ -4,21 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arsalways • Panel Admin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
+        :root {
+            --primary-purple: #8A2BE2;
+            --secondary-purple: #4c1d95;
+            --accent-cyan: #00f3ff;
+            --accent-pink: #ff0050;
+            --bg: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --text: #e2e8f0;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-family: 'Rajdhani', sans-serif;
         }
 
         body {
-            background: #0f0f1a;
+            background: var(--bg);
             color: white;
             padding: 20px;
         }
@@ -34,12 +45,14 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #ffaa00;
+            border-bottom: 2px solid var(--primary-purple);
         }
 
         .header h1 {
-            color: #ffaa00;
+            color: var(--primary-purple);
             font-size: 28px;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px var(--primary-purple);
         }
 
         .stats {
@@ -50,18 +63,21 @@
         }
 
         .stat-card {
-            background: #1a1a2e;
-            border: 1px solid #ffaa00;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-purple);
             border-radius: 16px;
             padding: 20px;
             text-align: center;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
         }
 
         .stat-number {
             font-size: 32px;
             font-weight: bold;
-            color: #ffaa00;
+            color: var(--accent-cyan);
             margin: 10px 0;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px var(--accent-cyan);
         }
 
         .tab-menu {
@@ -73,8 +89,8 @@
 
         .tab-btn {
             padding: 12px 24px;
-            background: #1a1a2e;
-            border: 1px solid #ffaa00;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-purple);
             border-radius: 10px;
             color: white;
             cursor: pointer;
@@ -83,11 +99,12 @@
         }
 
         .tab-btn:hover {
-            background: #2a2a3a;
+            background: rgba(138, 43, 226, 0.3);
+            box-shadow: 0 0 15px var(--primary-purple);
         }
 
         .tab-btn.active {
-            background: #ffaa00;
+            background: var(--primary-purple);
             color: black;
         }
 
@@ -100,8 +117,8 @@
         }
 
         .settings-group {
-            background: #1a1a2e;
-            border: 1px solid #ffaa00;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-purple);
             border-radius: 16px;
             margin-bottom: 20px;
             overflow: hidden;
@@ -119,11 +136,11 @@
         }
 
         .settings-header:hover {
-            background: #2a2a3a;
+            background: rgba(138, 43, 226, 0.2);
         }
 
         .settings-header h3 {
-            color: #ffaa00;
+            color: var(--primary-purple);
             font-size: 18px;
             display: flex;
             align-items: center;
@@ -149,32 +166,25 @@
         }
 
         .panel-section {
-            background: #1a1a2e;
-            border: 1px solid #ffaa00;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-purple);
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
         }
 
         .panel-section h2 {
-            color: #ffaa00;
+            color: var(--accent-cyan);
             margin-bottom: 20px;
             font-size: 22px;
-        }
-
-        .panel-section h2 i {
-            margin-right: 10px;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 5px var(--accent-cyan);
         }
 
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
         }
 
@@ -185,7 +195,7 @@
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            color: #ffaa00;
+            color: var(--primary-purple);
             font-weight: 600;
         }
 
@@ -193,7 +203,7 @@
             width: 100%;
             padding: 12px;
             background: #0f0f1a;
-            border: 1px solid #ffaa00;
+            border: 1px solid var(--primary-purple);
             border-radius: 10px;
             color: white;
             font-size: 14px;
@@ -201,7 +211,8 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #ffdd44;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--primary-purple);
         }
 
         .form-control::placeholder {
@@ -216,7 +227,7 @@
 
         .btn {
             padding: 12px 24px;
-            background: #ffaa00;
+            background: var(--primary-purple);
             border: none;
             border-radius: 10px;
             color: black;
@@ -224,10 +235,17 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
         }
 
         .btn:active {
             transform: scale(0.95);
+        }
+
+        .btn:hover {
+            background: var(--accent-cyan);
+            color: black;
+            box-shadow: 0 0 20px var(--accent-cyan);
         }
 
         .btn-danger {
@@ -258,7 +276,7 @@
             width: 100%;
             height: 100px;
             border-radius: 10px;
-            border: 2px solid #ffaa00;
+            border: 2px solid var(--primary-purple);
             margin-bottom: 20px;
             transition: background 0.1s ease;
         }
@@ -296,25 +314,16 @@
             height: 20px;
             border-radius: 50%;
             background: white;
-            border: 2px solid #ffaa00;
+            border: 2px solid var(--primary-purple);
             cursor: pointer;
         }
-        
-        .slider-group input[type=range]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: white;
-            border: 2px solid #ffaa00;
-            cursor: pointer;
-        }
-        
+
         .color-value {
             background: #0f0f1a;
             padding: 10px 15px;
             border-radius: 8px;
             font-family: monospace;
-            border: 1px solid #ffaa00;
+            border: 1px solid var(--primary-purple);
             text-align: center;
             font-size: 18px;
         }
@@ -342,7 +351,7 @@
 
         .upload-area {
             background: #0f0f1a;
-            border: 2px dashed #ffaa00;
+            border: 2px dashed var(--primary-purple);
             border-radius: 10px;
             padding: 30px;
             text-align: center;
@@ -352,12 +361,13 @@
         }
 
         .upload-area:hover {
-            background: #1a1a2e;
+            background: rgba(138, 43, 226, 0.2);
+            border-color: var(--accent-cyan);
         }
 
         .upload-area i {
             font-size: 48px;
-            color: #ffaa00;
+            color: var(--primary-purple);
             margin-bottom: 10px;
         }
 
@@ -373,7 +383,7 @@
             max-width: 100%;
             max-height: 200px;
             border-radius: 10px;
-            border: 2px solid #ffaa00;
+            border: 2px solid var(--primary-purple);
             margin-top: 10px;
         }
 
@@ -383,7 +393,7 @@
 
         .produk-item {
             background: #0f0f1a;
-            border: 1px solid #ffaa00;
+            border: 1px solid var(--primary-purple);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 15px;
@@ -396,12 +406,12 @@
         .produk-preview {
             width: 80px;
             height: 80px;
-            background: #1a1a2e;
+            background: var(--card-bg);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #ffaa00;
+            border: 2px solid var(--primary-purple);
             overflow: hidden;
             flex-shrink: 0;
         }
@@ -423,7 +433,7 @@
 
         .produk-info h3 {
             margin-bottom: 5px;
-            color: #ffaa00;
+            color: var(--accent-cyan);
         }
 
         .produk-info p {
@@ -441,7 +451,7 @@
             width: 40px;
             height: 40px;
             border-radius: 10px;
-            background: #ffaa00;
+            background: var(--primary-purple);
             border: none;
             color: black;
             cursor: pointer;
@@ -451,6 +461,7 @@
 
         .btn-icon:hover {
             transform: scale(1.1);
+            background: var(--accent-cyan);
         }
 
         .btn-icon-danger {
@@ -465,7 +476,7 @@
 
         .transaksi-item {
             background: #0f0f1a;
-            border: 1px solid #ffaa00;
+            border: 1px solid var(--primary-purple);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
@@ -487,7 +498,7 @@
             font-weight: bold;
         }
 
-        .status-pending { background: #ffaa00; color: black; }
+        .status-pending { background: var(--primary-purple); color: black; }
         .status-sukses { background: #00cc88; color: white; }
         .status-batal { background: #ff4444; color: white; }
 
@@ -497,7 +508,7 @@
             gap: 15px;
             margin: 15px 0;
             padding: 15px;
-            background: #1a1a2e;
+            background: var(--card-bg);
             border-radius: 10px;
         }
 
@@ -508,7 +519,7 @@
         }
 
         .transaksi-detail-item .label {
-            color: #ffaa00;
+            color: var(--primary-purple);
             font-size: 12px;
             font-weight: 600;
         }
@@ -522,7 +533,7 @@
             max-width: 100%;
             max-height: 300px;
             border-radius: 10px;
-            border: 2px solid #ffaa00;
+            border: 2px solid var(--primary-purple);
             margin: 15px 0;
             cursor: pointer;
         }
@@ -536,7 +547,7 @@
 
         .testimoni-item {
             background: #0f0f1a;
-            border: 1px solid #ffaa00;
+            border: 1px solid var(--primary-purple);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
@@ -552,17 +563,17 @@
         .testimoni-avatar {
             width: 50px;
             height: 50px;
-            background: #1a1a2e;
+            background: var(--card-bg);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #ffaa00;
+            border: 2px solid var(--primary-purple);
             font-size: 24px;
         }
 
         .testimoni-info h4 {
-            color: #ffaa00;
+            color: var(--accent-cyan);
             margin-bottom: 5px;
         }
 
@@ -575,7 +586,7 @@
             max-width: 100%;
             max-height: 300px;
             border-radius: 10px;
-            border: 2px solid #ffaa00;
+            border: 2px solid var(--primary-purple);
             margin: 15px 0;
             cursor: pointer;
         }
@@ -584,7 +595,7 @@
             width: 100%;
             padding: 15px;
             background: #0f0f1a;
-            border: 1px solid #ffaa00;
+            border: 1px solid var(--primary-purple);
             border-radius: 10px;
             color: white;
             margin-bottom: 20px;
@@ -593,12 +604,8 @@
 
         .search-box:focus {
             outline: none;
-            border-color: #ffdd44;
-        }
-
-        .search-box::placeholder {
-            color: #4a4a5a;
-            opacity: 0.7;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--primary-purple);
         }
 
         .modal {
@@ -628,7 +635,7 @@
             max-width: 100%;
             max-height: 90vh;
             border-radius: 10px;
-            border: 3px solid #ffaa00;
+            border: 3px solid var(--primary-purple);
         }
 
         .close-modal {
@@ -660,8 +667,8 @@
         }
 
         .badge-info {
-            background: #3399ff;
-            color: white;
+            background: var(--accent-cyan);
+            color: black;
         }
 
         @media (max-width: 768px) {
@@ -692,22 +699,22 @@
         <!-- STATISTIK -->
         <div class="stats">
             <div class="stat-card">
-                <i class="fas fa-store fa-2x" style="color:#ffaa00;"></i>
+                <i class="fas fa-store fa-2x" style="color:var(--primary-purple);"></i>
                 <div class="stat-number" id="totalProduk">0</div>
                 <div>Total Produk</div>
             </div>
             <div class="stat-card">
-                <i class="fas fa-users fa-2x" style="color:#ffaa00;"></i>
+                <i class="fas fa-users fa-2x" style="color:var(--primary-purple);"></i>
                 <div class="stat-number" id="totalPengunjung">0</div>
                 <div>Pengunjung</div>
             </div>
             <div class="stat-card">
-                <i class="fas fa-shopping-cart fa-2x" style="color:#ffaa00;"></i>
+                <i class="fas fa-shopping-cart fa-2x" style="color:var(--primary-purple);"></i>
                 <div class="stat-number" id="totalTransaksi">0</div>
                 <div>Transaksi</div>
             </div>
             <div class="stat-card">
-                <i class="fas fa-star fa-2x" style="color:#ffaa00;"></i>
+                <i class="fas fa-star fa-2x" style="color:var(--primary-purple);"></i>
                 <div class="stat-number" id="totalTestimoni">0</div>
                 <div>Testimoni</div>
             </div>
@@ -728,12 +735,12 @@
                 <h2><i class="fas fa-chart-line"></i> AKTIVITAS TERBARU</h2>
                 
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color:#ffaa00; margin-bottom:15px;">📦 Transaksi Terbaru</h3>
+                    <h3 style="color:var(--primary-purple); margin-bottom:15px;">📦 Transaksi Terbaru</h3>
                     <div id="transaksiTerbaru"></div>
                 </div>
                 
                 <div>
-                    <h3 style="color:#ffaa00; margin-bottom:15px;">📸 Testimoni Terbaru</h3>
+                    <h3 style="color:var(--primary-purple); margin-bottom:15px;">📸 Testimoni Terbaru</h3>
                     <div id="testimoniTerbaru"></div>
                 </div>
             </div>
@@ -749,35 +756,34 @@
                 </div>
                 <div class="settings-content collapsed">
                     <div class="color-picker-full">
-                        <div class="color-preview" id="colorPreview" style="background: #ffaa00;"></div>
+                        <div class="color-preview" id="colorPreview" style="background: #8A2BE2;"></div>
                         
                         <div class="color-sliders">
                             <div class="slider-group">
                                 <label>R</label>
-                                <input type="range" id="redSlider" min="0" max="255" value="255">
-                                <span id="redValue">255</span>
+                                <input type="range" id="redSlider" min="0" max="255" value="138">
+                                <span id="redValue">138</span>
                             </div>
                             <div class="slider-group">
                                 <label>G</label>
-                                <input type="range" id="greenSlider" min="0" max="255" value="170">
-                                <span id="greenValue">170</span>
+                                <input type="range" id="greenSlider" min="0" max="255" value="43">
+                                <span id="greenValue">43</span>
                             </div>
                             <div class="slider-group">
                                 <label>B</label>
-                                <input type="range" id="blueSlider" min="0" max="255" value="0">
-                                <span id="blueValue">0</span>
+                                <input type="range" id="blueSlider" min="0" max="255" value="226">
+                                <span id="blueValue">226</span>
                             </div>
                         </div>
                         
-                        <div class="color-value" id="colorValue">#ffaa00</div>
+                        <div class="color-value" id="colorValue">#8A2BE2</div>
                         
                         <div class="preset-colors">
-                            <div class="preset-color" style="background: #ffaa00;" onclick="setColor('#ffaa00')"></div>
-                            <div class="preset-color" style="background: #6b46c1;" onclick="setColor('#6b46c1')"></div>
+                            <div class="preset-color" style="background: #8A2BE2;" onclick="setColor('#8A2BE2')"></div>
+                            <div class="preset-color" style="background: #00f3ff;" onclick="setColor('#00f3ff')"></div>
+                            <div class="preset-color" style="background: #ff0050;" onclick="setColor('#ff0050')"></div>
                             <div class="preset-color" style="background: #00cc88;" onclick="setColor('#00cc88')"></div>
-                            <div class="preset-color" style="background: #ff4444;" onclick="setColor('#ff4444')"></div>
-                            <div class="preset-color" style="background: #3399ff;" onclick="setColor('#3399ff')"></div>
-                            <div class="preset-color" style="background: #ff66b2;" onclick="setColor('#ff66b2')"></div>
+                            <div class="preset-color" style="background: #ffaa00;" onclick="setColor('#ffaa00')"></div>
                         </div>
                     </div>
                     <button class="btn" id="simpanWarna"><i class="fas fa-save"></i> SIMPAN WARNA</button>
@@ -894,7 +900,7 @@
                         <div>
                             <div class="form-group">
                                 <label>Telegram</label>
-                                <input type="text" class="form-control" id="telegram" value="arsalcs" placeholder="username">
+                                <input type="text" class="form-control" id="telegram" value="arsalwaysss0" placeholder="username">
                             </div>
                             <div class="form-group">
                                 <label>Instagram</label>
@@ -903,12 +909,8 @@
                         </div>
                         <div>
                             <div class="form-group">
-                                <label>Facebook</label>
-                                <input type="text" class="form-control" id="facebook" value="arsalways" placeholder="username">
-                            </div>
-                            <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" class="form-control" id="email" value="cs@arsalways.com" placeholder="email">
+                                <input type="email" class="form-control" id="email" value="arsalwaysss4321@gmail.com" placeholder="email">
                             </div>
                         </div>
                     </div>
@@ -1028,7 +1030,6 @@
             appId: "1:86797928744:web:cb85dd498c6cf3b659281d"
         };
 
-        // Inisialisasi Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const storage = firebase.storage();
@@ -1041,8 +1042,7 @@
         let selectedFile = null;
         let currentUploadType = '';
 
-        // ==================== AMBIL DATA ====================
-        
+        // AMBIL DATA
         database.ref('settings').on('value', (s) => {
             settings = s.val() || {};
             updateSettingsForm();
@@ -1076,8 +1076,7 @@
             document.getElementById('totalPengunjung').textContent = s.numChildren() || 0;
         });
 
-        // ==================== FUNGSI WARNA ====================
-        
+        // FUNGSI WARNA
         function updateWarna() {
             if (settings.primaryColor) {
                 document.getElementById('colorPreview').style.background = settings.primaryColor;
@@ -1138,23 +1137,21 @@
             }
         };
 
-        // ==================== UPDATE SETTINGS FORM ====================
-
+        // UPDATE SETTINGS FORM
         function updateSettingsForm() {
             document.getElementById('storeName').value = settings.storeName || '';
             document.getElementById('storeDescription').value = settings.storeDescription || '';
-            document.getElementById('waNumber').value = settings.waNumber || '';
-            document.getElementById('danaNumber').value = settings.danaNumber || '';
-            document.getElementById('gopayNumber').value = settings.gopayNumber || '';
+            document.getElementById('waNumber').value = settings.waNumber || '6287713154246';
+            document.getElementById('danaNumber').value = settings.danaNumber || '0895-1234-5678';
+            document.getElementById('gopayNumber').value = settings.gopayNumber || '0857-9876-5432';
             document.getElementById('biayaQRIS').value = settings.biayaQRIS || '850';
             document.getElementById('pajak').value = settings.pajak || '750';
             document.getElementById('apiKey').value = settings.apiKey || 'RA_46617fdd55f4de340fe92126bbbd03cf';
-            document.getElementById('tahunDidirikan').value = settings.tahunDidirikan || '';
-            document.getElementById('lokasi').value = settings.lokasi || '';
-            document.getElementById('telegram').value = settings.telegram || '';
-            document.getElementById('instagram').value = settings.instagram || '';
-            document.getElementById('facebook').value = settings.facebook || '';
-            document.getElementById('email').value = settings.email || '';
+            document.getElementById('tahunDidirikan').value = settings.tahunDidirikan || '2026';
+            document.getElementById('lokasi').value = settings.lokasi || 'Jakarta, Indonesia';
+            document.getElementById('telegram').value = settings.telegram || 'arsalwaysss0';
+            document.getElementById('instagram').value = settings.instagram || 'arsalways';
+            document.getElementById('email').value = settings.email || 'arsalwaysss4321@gmail.com';
             
             if (settings.kelebihan && Array.isArray(settings.kelebihan)) {
                 document.getElementById('kelebihan').value = settings.kelebihan.join(', ');
@@ -1168,8 +1165,7 @@
             }
         }
 
-        // ==================== TOGGLE SETTINGS ====================
-
+        // TOGGLE SETTINGS
         window.toggleSettings = function(header) {
             const content = header.nextElementSibling;
             const icon = header.querySelector('i');
@@ -1184,8 +1180,7 @@
             }
         };
 
-        // ==================== SIMPAN SETTINGS ====================
-
+        // SIMPAN SETTINGS
         document.getElementById('simpanWarna').onclick = function() {
             const color = document.getElementById('colorValue').textContent;
             database.ref('settings/primaryColor').set(color);
@@ -1233,14 +1228,12 @@
             database.ref('settings').update({
                 telegram: document.getElementById('telegram').value,
                 instagram: document.getElementById('instagram').value,
-                facebook: document.getElementById('facebook').value,
                 email: document.getElementById('email').value
             });
             alert('Sosial media disimpan!');
         };
 
-        // ==================== UPLOAD ====================
-
+        // UPLOAD
         document.getElementById('uploadStoreLogo').onclick = () => {
             currentUploadType = 'storeLogo';
             document.getElementById('fileStoreLogo').click();
@@ -1277,10 +1270,8 @@
             reader.readAsDataURL(file);
         };
 
-        // ==================== TAMBAH PRODUK (VERSI SEDERHANA YANG PASTI JALAN) ====================
-
+        // TAMBAH PRODUK
         document.getElementById('tambahProduk').onclick = function() {
-            // Ambil nilai form
             const nama = document.getElementById('produkNama').value.trim();
             const harga = document.getElementById('produkHarga').value.trim();
             const emoji = document.getElementById('produkEmoji').value.trim() || '📦';
@@ -1288,7 +1279,6 @@
             const link = document.getElementById('produkLink').value.trim();
             const gambarUrl = document.getElementById('produkGambarUrl').value.trim();
 
-            // Validasi sederhana
             if (nama === '') {
                 alert('Nama produk harus diisi!');
                 return;
@@ -1299,15 +1289,8 @@
                 return;
             }
 
-            // Konfirmasi
-            if (!confirm('Tambahkan produk ini?')) {
-                return;
-            }
-
-            // Buat ID unik
             const id = 'p' + Date.now();
 
-            // Data produk
             const produkBaru = {
                 id: id,
                 nama: nama,
@@ -1318,12 +1301,9 @@
                 logo: gambarUrl || null
             };
 
-            // Simpan ke Firebase
             database.ref('produk/' + id).set(produkBaru)
                 .then(() => {
                     alert('✅ Produk berhasil ditambahkan!');
-                    
-                    // Reset form
                     document.getElementById('produkNama').value = '';
                     document.getElementById('produkHarga').value = '';
                     document.getElementById('produkEmoji').value = '';
@@ -1338,8 +1318,7 @@
                 });
         };
 
-        // ==================== HAPUS PRODUK ====================
-
+        // HAPUS PRODUK
         window.hapusProduk = function(id) {
             if (confirm('Yakin ingin menghapus produk ini?')) {
                 database.ref('produk/' + id).remove()
@@ -1348,8 +1327,7 @@
             }
         };
 
-        // ==================== EDIT PRODUK ====================
-
+        // EDIT PRODUK
         window.editProduk = function(id) {
             const p = produk.find(p => p.id === id);
             if (!p) return;
@@ -1365,14 +1343,12 @@
                 document.getElementById('previewProduk').innerHTML = `<img src="${p.logo}" class="preview-image">`;
             }
             
-            // Hapus produk lama setelah edit
             if (confirm('Edit produk ini? Data lama akan dihapus.')) {
                 database.ref('produk/' + id).remove();
             }
         };
 
-        // ==================== RENDER PRODUK ====================
-
+        // RENDER PRODUK
         function renderProduk() {
             const search = document.getElementById('searchProduk')?.value.toLowerCase() || '';
             let html = '';
@@ -1410,10 +1386,8 @@
             document.getElementById('daftarProduk').innerHTML = html;
         }
 
-        // ==================== RENDER DASHBOARD ====================
-
+        // RENDER DASHBOARD
         function renderDashboard() {
-            // Transaksi terbaru
             const transaksiTerbaru = transaksi ? transaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5) : [];
             let transaksiHtml = '';
             
@@ -1436,7 +1410,6 @@
             
             document.getElementById('transaksiTerbaru').innerHTML = transaksiHtml || '<p style="text-align:center;">Belum ada transaksi</p>';
             
-            // Testimoni terbaru
             const testimoniTerbaru = testimoni ? testimoni.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5) : [];
             let testimoniHtml = '';
             
@@ -1460,8 +1433,7 @@
             document.getElementById('testimoniTerbaru').innerHTML = testimoniHtml || '<p style="text-align:center;">Belum ada testimoni</p>';
         }
 
-        // ==================== RENDER TRANSAKSI ====================
-
+        // RENDER TRANSAKSI
         function renderTransaksi() {
             const search = document.getElementById('searchTransaksi')?.value.toLowerCase() || '';
             const filterStatus = document.getElementById('filterStatusTransaksi')?.value || 'all';
@@ -1487,7 +1459,7 @@
                     <div class="transaksi-item">
                         <div class="transaksi-header">
                             <div>
-                                <h3 style="color:#ffaa00; margin-bottom:5px;">${t.produk || 'Produk'}</h3>
+                                <h3 style="color:var(--accent-cyan); margin-bottom:5px;">${t.produk || 'Produk'}</h3>
                                 <span class="badge badge-info">ID: ${t.id || 'N/A'}</span>
                             </div>
                             <span class="transaksi-status ${statusClass}">${(t.status || 'pending').toUpperCase()}</span>
@@ -1514,7 +1486,7 @@
                         
                         ${t.buktiUrl ? `
                             <div>
-                                <p style="color:#ffaa00; margin-bottom:10px;">📸 Bukti Transfer:</p>
+                                <p style="color:var(--accent-cyan); margin-bottom:10px;">📸 Bukti Transfer:</p>
                                 <img src="${t.buktiUrl}" class="transaksi-bukti" onclick="lihatGambar('${t.buktiUrl}')">
                             </div>
                         ` : ''}
@@ -1536,8 +1508,7 @@
             document.getElementById('daftarTransaksi').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada transaksi</p>';
         }
 
-        // ==================== RENDER TESTIMONI ====================
-
+        // RENDER TESTIMONI
         function renderTestimoni() {
             const search = document.getElementById('searchTestimoni')?.value.toLowerCase() || '';
             let html = '';
@@ -1572,8 +1543,7 @@
             document.getElementById('daftarTestimoni').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada testimoni</p>';
         }
 
-        // ==================== UPDATE STATUS TRANSAKSI ====================
-
+        // UPDATE STATUS TRANSAKSI
         window.updateStatus = function(id, status) {
             if (!id) return;
             
@@ -1603,8 +1573,7 @@
             }).catch(err => alert('Gagal: ' + err.message));
         };
 
-        // ==================== HAPUS TRANSAKSI ====================
-
+        // HAPUS TRANSAKSI
         window.hapusTransaksi = function(id) {
             if (!id) return;
             
@@ -1615,8 +1584,7 @@
             }
         };
 
-        // ==================== HAPUS TESTIMONI ====================
-
+        // HAPUS TESTIMONI
         window.hapusTestimoni = function(id) {
             if (!id) return;
             
@@ -1627,8 +1595,7 @@
             }
         };
 
-        // ==================== LIHAT GAMBAR ====================
-
+        // LIHAT GAMBAR
         window.lihatGambar = function(url) {
             if (!url) return;
             document.getElementById('modalContent').innerHTML = `<img src="${url}">`;
@@ -1645,19 +1612,16 @@
             }
         };
 
-        // ==================== SEARCH EVENT ====================
-
+        // SEARCH EVENT
         document.getElementById('searchProduk')?.addEventListener('input', renderProduk);
         document.getElementById('searchTransaksi')?.addEventListener('input', renderTransaksi);
         document.getElementById('searchTestimoni')?.addEventListener('input', renderTestimoni);
         
-        // ==================== FILTER EVENT ====================
-
+        // FILTER EVENT
         document.getElementById('filterStatusTransaksi')?.addEventListener('change', renderTransaksi);
         document.getElementById('filterMetodeTransaksi')?.addEventListener('change', renderTransaksi);
 
-        // ==================== TAB MENU ====================
-
+        // TAB MENU
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1669,8 +1633,7 @@
             });
         });
 
-        // ==================== TEST API ====================
-
+        // TEST API
         document.getElementById('testApi').onclick = async function() {
             try {
                 const response = await fetch('qris_handler.php', {
