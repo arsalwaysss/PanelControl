@@ -64,7 +64,6 @@
             margin: 10px 0;
         }
 
-        /* TAB MENU */
         .tab-menu {
             display: flex;
             gap: 10px;
@@ -100,7 +99,6 @@
             display: block;
         }
 
-        /* SETTINGS GROUP - SEMUA DISEMBUNYIKAN SAMPAI DI KLIK */
         .settings-group {
             background: #1a1a2e;
             border: 1px solid #ffaa00;
@@ -150,7 +148,6 @@
             display: none;
         }
 
-        /* PANEL SECTION */
         .panel-section {
             background: #1a1a2e;
             border: 1px solid #ffaa00;
@@ -208,7 +205,7 @@
         }
 
         .form-control::placeholder {
-            color: #4a4a5a; /* Warna gelap untuk placeholder */
+            color: #4a4a5a;
             opacity: 0.5;
         }
 
@@ -253,7 +250,6 @@
             font-size: 12px;
         }
 
-        /* COLOR PICKER DENGAN SLIDER */
         .color-picker-full {
             margin-bottom: 20px;
         }
@@ -344,7 +340,6 @@
             border-color: white;
         }
 
-        /* UPLOAD AREA */
         .upload-area {
             background: #0f0f1a;
             border: 2px dashed #ffaa00;
@@ -386,7 +381,6 @@
             max-height: 100px;
         }
 
-        /* PRODUK LIST */
         .produk-item {
             background: #0f0f1a;
             border: 1px solid #ffaa00;
@@ -469,7 +463,6 @@
             color: white;
         }
 
-        /* TRANSAKSI LIST */
         .transaksi-item {
             background: #0f0f1a;
             border: 1px solid #ffaa00;
@@ -541,7 +534,6 @@
             margin-top: 15px;
         }
 
-        /* TESTIMONI LIST */
         .testimoni-item {
             background: #0f0f1a;
             border: 1px solid #ffaa00;
@@ -588,7 +580,6 @@
             cursor: pointer;
         }
 
-        /* SEARCH BOX */
         .search-box {
             width: 100%;
             padding: 15px;
@@ -610,7 +601,6 @@
             opacity: 0.7;
         }
 
-        /* MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -661,7 +651,6 @@
             background: #ff4444;
         }
 
-        /* BADGE */
         .badge {
             display: inline-block;
             padding: 4px 12px;
@@ -673,31 +662,6 @@
         .badge-info {
             background: #3399ff;
             color: white;
-        }
-
-        /* ALERT */
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .alert-success {
-            background: #00cc88;
-            color: white;
-        }
-
-        .alert-danger {
-            background: #ff4444;
-            color: white;
-        }
-
-        .alert-warning {
-            background: #ffaa00;
-            color: black;
         }
 
         @media (max-width: 768px) {
@@ -775,7 +739,7 @@
             </div>
         </div>
 
-        <!-- TAB SETTINGS - SEMUA DISEMBUNYIKAN SAMPAI DI KLIK -->
+        <!-- TAB SETTINGS -->
         <div class="tab-content" id="tab-settings">
             <!-- GROUP 1: TEMA -->
             <div class="settings-group">
@@ -820,7 +784,7 @@
                 </div>
             </div>
 
-            <!-- GROUP 2: TOKO -->
+            <!-- GROUP 2: TOKO (TERMASUK LOGO) -->
             <div class="settings-group">
                 <div class="settings-header" onclick="toggleSettings(this)">
                     <h3><i class="fas fa-store"></i> PENGATURAN TOKO</h3>
@@ -1115,7 +1079,6 @@
                 document.getElementById('colorPreview').style.background = settings.primaryColor;
                 document.getElementById('colorValue').textContent = settings.primaryColor;
                 
-                // Update slider
                 const r = parseInt(settings.primaryColor.substr(1,2), 16);
                 const g = parseInt(settings.primaryColor.substr(3,2), 16);
                 const b = parseInt(settings.primaryColor.substr(5,2), 16);
@@ -1129,7 +1092,6 @@
             }
         }
 
-        // Color slider events
         function updateColorFromSliders() {
             const r = document.getElementById('redSlider').value;
             const g = document.getElementById('greenSlider').value;
@@ -1331,7 +1293,6 @@
                 logo: gambarUrl || null
             };
 
-            // Jika ada file yang diupload
             if (document.getElementById('fileProduk').files.length > 0) {
                 const file = document.getElementById('fileProduk').files[0];
                 const ref = storage.ref().child(`produk/${id}.jpg`);
@@ -1377,7 +1338,6 @@
                 document.getElementById('previewProduk').innerHTML = `<img src="${p.logo}" class="preview-image">`;
             }
             
-            // Hapus produk lama setelah edit
             database.ref('produk/' + id).remove();
         };
 
@@ -1413,7 +1373,6 @@
         // ==================== RENDER DASHBOARD ====================
 
         function renderDashboard() {
-            // Transaksi terbaru
             const transaksiTerbaru = transaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5);
             let transaksiHtml = '';
             
@@ -1436,7 +1395,6 @@
             
             document.getElementById('transaksiTerbaru').innerHTML = transaksiHtml || '<p style="text-align:center;">Belum ada transaksi</p>';
             
-            // Testimoni terbaru
             const testimoniTerbaru = testimoni.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5);
             let testimoniHtml = '';
             
@@ -1572,7 +1530,6 @@
         window.updateStatus = function(id, status) {
             database.ref('transaksi/' + id).update({ status: status }).then(() => {
                 if (status === 'sukses') {
-                    // Ambil data transaksi untuk testimoni
                     database.ref('transaksi/' + id).once('value', (s) => {
                         const trx = s.val();
                         if (trx && trx.buktiUrl) {
@@ -1675,9 +1632,7 @@
             }
         };
 
-        // ==================== INIT ====================
-
         console.log('Panel Admin siap!');
     </script>
 </body>
-    </html>
+</html>
