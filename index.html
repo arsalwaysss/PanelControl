@@ -188,6 +188,12 @@
             gap: 20px;
         }
 
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -268,6 +274,7 @@
             font-size: 12px;
         }
 
+        /* COLOR PICKER */
         .color-picker-full {
             margin-bottom: 20px;
         }
@@ -349,6 +356,7 @@
             border-color: white;
         }
 
+        /* UPLOAD AREA */
         .upload-area {
             background: #0f0f1a;
             border: 2px dashed var(--primary-purple);
@@ -391,6 +399,7 @@
             max-height: 100px;
         }
 
+        /* PRODUK LIST */
         .produk-item {
             background: #0f0f1a;
             border: 1px solid var(--primary-purple);
@@ -474,6 +483,7 @@
             color: white;
         }
 
+        /* TRANSAKSI LIST */
         .transaksi-item {
             background: #0f0f1a;
             border: 1px solid var(--primary-purple);
@@ -545,6 +555,7 @@
             margin-top: 15px;
         }
 
+        /* TESTIMONI LIST */
         .testimoni-item {
             background: #0f0f1a;
             border: 1px solid var(--primary-purple);
@@ -838,24 +849,42 @@
                 </div>
             </div>
 
-            <!-- GROUP 3: QRIS -->
+            <!-- GROUP 3: QRIS SETTINGS -->
             <div class="settings-group">
                 <div class="settings-header" onclick="toggleSettings(this)">
                     <h3><i class="fas fa-qrcode"></i> QRIS SETTINGS</h3>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="settings-content collapsed">
-                    <div class="form-group">
-                        <label>API Key Payinaja</label>
-                        <input type="text" class="form-control" id="apiKey" value="RA_46617fdd55f4de340fe92126bbbd03cf">
-                    </div>
-                    <div class="form-group">
-                        <label>Biaya QRIS (Rp)</label>
-                        <input type="number" class="form-control" id="biayaQRIS" value="850" placeholder="850">
-                    </div>
-                    <div class="form-group">
-                        <label>Pajak (Rp)</label>
-                        <input type="number" class="form-control" id="pajak" value="750" placeholder="750">
+                    <div class="grid-2">
+                        <div>
+                            <div class="form-group">
+                                <label>API Key Payinaja</label>
+                                <input type="text" class="form-control" id="apiKey" value="RA_46617fdd55f4de340fe92126bbbd03cf">
+                            </div>
+                            <div class="form-group">
+                                <label>Biaya QRIS (Rp)</label>
+                                <input type="number" class="form-control" id="biayaQRIS" value="850" placeholder="850">
+                            </div>
+                            <div class="form-group">
+                                <label>Pajak (Rp)</label>
+                                <input type="number" class="form-control" id="pajak" value="750" placeholder="750">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label>QRIS Timeout (menit)</label>
+                                <input type="number" class="form-control" id="qrisTimeout" value="30" placeholder="30">
+                            </div>
+                            <div class="form-group">
+                                <label>Ukuran QRIS (px)</label>
+                                <input type="number" class="form-control" id="qrisSize" value="380" placeholder="380">
+                            </div>
+                            <div class="form-group">
+                                <label>Polling Interval (detik)</label>
+                                <input type="number" class="form-control" id="pollingInterval" value="5" placeholder="5">
+                            </div>
+                        </div>
                     </div>
                     <button class="btn" id="simpanQRIS"><i class="fas fa-save"></i> SIMPAN QRIS SETTINGS</button>
                     <button class="btn btn-warning" id="testApi" style="margin-top:10px;"><i class="fas fa-plug"></i> TEST KONEKSI API</button>
@@ -869,21 +898,27 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="settings-content collapsed">
-                    <div class="form-group">
-                        <label>Kelebihan Web (pisahkan dengan koma)</label>
-                        <textarea class="form-control" id="kelebihan" rows="3" placeholder="Transaksi Real-time, Statistik Pengunjung, QRIS Otomatis..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Kekurangan Web (pisahkan dengan koma)</label>
-                        <textarea class="form-control" id="kekurangan" rows="3" placeholder="Bergantung internet, Transfer manual..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Tahun Didirikan</label>
-                        <input type="text" class="form-control" id="tahunDidirikan" value="2026" placeholder="2026">
-                    </div>
-                    <div class="form-group">
-                        <label>Lokasi</label>
-                        <input type="text" class="form-control" id="lokasi" value="Jakarta, Indonesia" placeholder="Jakarta, Indonesia">
+                    <div class="grid-2">
+                        <div>
+                            <div class="form-group">
+                                <label>Kelebihan Web (pisahkan dengan koma)</label>
+                                <textarea class="form-control" id="kelebihan" rows="3" placeholder="Transaksi Real-time, Statistik Pengunjung, QRIS Otomatis..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Kekurangan Web (pisahkan dengan koma)</label>
+                                <textarea class="form-control" id="kekurangan" rows="3" placeholder="Bergantung internet, Transfer manual..."></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label>Tahun Didirikan</label>
+                                <input type="text" class="form-control" id="tahunDidirikan" value="2026" placeholder="2026">
+                            </div>
+                            <div class="form-group">
+                                <label>Lokasi</label>
+                                <input type="text" class="form-control" id="lokasi" value="Jakarta, Indonesia" placeholder="Jakarta, Indonesia">
+                            </div>
+                        </div>
                     </div>
                     <button class="btn" id="simpanInfo"><i class="fas fa-save"></i> SIMPAN INFORMASI</button>
                 </div>
@@ -908,6 +943,10 @@
                             </div>
                         </div>
                         <div>
+                            <div class="form-group">
+                                <label>Facebook</label>
+                                <input type="text" class="form-control" id="facebook" value="arsalways" placeholder="username">
+                            </div>
                             <div class="form-group">
                                 <label>Email</label>
                                 <input type="email" class="form-control" id="email" value="arsalwaysss4321@gmail.com" placeholder="email">
@@ -1042,7 +1081,8 @@
         let selectedFile = null;
         let currentUploadType = '';
 
-        // AMBIL DATA
+        // ==================== AMBIL DATA ====================
+        
         database.ref('settings').on('value', (s) => {
             settings = s.val() || {};
             updateSettingsForm();
@@ -1076,7 +1116,8 @@
             document.getElementById('totalPengunjung').textContent = s.numChildren() || 0;
         });
 
-        // FUNGSI WARNA
+        // ==================== FUNGSI WARNA ====================
+        
         function updateWarna() {
             if (settings.primaryColor) {
                 document.getElementById('colorPreview').style.background = settings.primaryColor;
@@ -1137,7 +1178,8 @@
             }
         };
 
-        // UPDATE SETTINGS FORM
+        // ==================== UPDATE SETTINGS FORM ====================
+
         function updateSettingsForm() {
             document.getElementById('storeName').value = settings.storeName || '';
             document.getElementById('storeDescription').value = settings.storeDescription || '';
@@ -1147,10 +1189,14 @@
             document.getElementById('biayaQRIS').value = settings.biayaQRIS || '850';
             document.getElementById('pajak').value = settings.pajak || '750';
             document.getElementById('apiKey').value = settings.apiKey || 'RA_46617fdd55f4de340fe92126bbbd03cf';
+            document.getElementById('qrisTimeout').value = settings.qrisTimeout || '30';
+            document.getElementById('qrisSize').value = settings.qrisSize || '380';
+            document.getElementById('pollingInterval').value = settings.pollingInterval || '5';
             document.getElementById('tahunDidirikan').value = settings.tahunDidirikan || '2026';
             document.getElementById('lokasi').value = settings.lokasi || 'Jakarta, Indonesia';
             document.getElementById('telegram').value = settings.telegram || 'arsalwaysss0';
             document.getElementById('instagram').value = settings.instagram || 'arsalways';
+            document.getElementById('facebook').value = settings.facebook || 'arsalways';
             document.getElementById('email').value = settings.email || 'arsalwaysss4321@gmail.com';
             
             if (settings.kelebihan && Array.isArray(settings.kelebihan)) {
@@ -1165,7 +1211,8 @@
             }
         }
 
-        // TOGGLE SETTINGS
+        // ==================== TOGGLE SETTINGS ====================
+
         window.toggleSettings = function(header) {
             const content = header.nextElementSibling;
             const icon = header.querySelector('i');
@@ -1180,7 +1227,8 @@
             }
         };
 
-        // SIMPAN SETTINGS
+        // ==================== SIMPAN SETTINGS ====================
+
         document.getElementById('simpanWarna').onclick = function() {
             const color = document.getElementById('colorValue').textContent;
             database.ref('settings/primaryColor').set(color);
@@ -1206,7 +1254,10 @@
             database.ref('settings').update({
                 biayaQRIS: parseInt(document.getElementById('biayaQRIS').value) || 850,
                 pajak: parseInt(document.getElementById('pajak').value) || 750,
-                apiKey: document.getElementById('apiKey').value
+                apiKey: document.getElementById('apiKey').value,
+                qrisTimeout: parseInt(document.getElementById('qrisTimeout').value) || 30,
+                qrisSize: parseInt(document.getElementById('qrisSize').value) || 380,
+                pollingInterval: parseInt(document.getElementById('pollingInterval').value) || 5
             });
             alert('QRIS Settings disimpan!');
         };
@@ -1228,12 +1279,14 @@
             database.ref('settings').update({
                 telegram: document.getElementById('telegram').value,
                 instagram: document.getElementById('instagram').value,
+                facebook: document.getElementById('facebook').value,
                 email: document.getElementById('email').value
             });
             alert('Sosial media disimpan!');
         };
 
-        // UPLOAD
+        // ==================== UPLOAD ====================
+
         document.getElementById('uploadStoreLogo').onclick = () => {
             currentUploadType = 'storeLogo';
             document.getElementById('fileStoreLogo').click();
@@ -1270,7 +1323,8 @@
             reader.readAsDataURL(file);
         };
 
-        // TAMBAH PRODUK
+        // ==================== TAMBAH PRODUK ====================
+
         document.getElementById('tambahProduk').onclick = function() {
             const nama = document.getElementById('produkNama').value.trim();
             const harga = document.getElementById('produkHarga').value.trim();
@@ -1318,7 +1372,8 @@
                 });
         };
 
-        // HAPUS PRODUK
+        // ==================== HAPUS PRODUK ====================
+
         window.hapusProduk = function(id) {
             if (confirm('Yakin ingin menghapus produk ini?')) {
                 database.ref('produk/' + id).remove()
@@ -1327,7 +1382,8 @@
             }
         };
 
-        // EDIT PRODUK
+        // ==================== EDIT PRODUK ====================
+
         window.editProduk = function(id) {
             const p = produk.find(p => p.id === id);
             if (!p) return;
@@ -1348,7 +1404,8 @@
             }
         };
 
-        // RENDER PRODUK
+        // ==================== RENDER PRODUK ====================
+
         function renderProduk() {
             const search = document.getElementById('searchProduk')?.value.toLowerCase() || '';
             let html = '';
@@ -1386,7 +1443,8 @@
             document.getElementById('daftarProduk').innerHTML = html;
         }
 
-        // RENDER DASHBOARD
+        // ==================== RENDER DASHBOARD ====================
+
         function renderDashboard() {
             const transaksiTerbaru = transaksi ? transaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5) : [];
             let transaksiHtml = '';
@@ -1433,7 +1491,8 @@
             document.getElementById('testimoniTerbaru').innerHTML = testimoniHtml || '<p style="text-align:center;">Belum ada testimoni</p>';
         }
 
-        // RENDER TRANSAKSI
+        // ==================== RENDER TRANSAKSI ====================
+
         function renderTransaksi() {
             const search = document.getElementById('searchTransaksi')?.value.toLowerCase() || '';
             const filterStatus = document.getElementById('filterStatusTransaksi')?.value || 'all';
@@ -1508,7 +1567,8 @@
             document.getElementById('daftarTransaksi').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada transaksi</p>';
         }
 
-        // RENDER TESTIMONI
+        // ==================== RENDER TESTIMONI ====================
+
         function renderTestimoni() {
             const search = document.getElementById('searchTestimoni')?.value.toLowerCase() || '';
             let html = '';
@@ -1543,7 +1603,8 @@
             document.getElementById('daftarTestimoni').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada testimoni</p>';
         }
 
-        // UPDATE STATUS TRANSAKSI
+        // ==================== UPDATE STATUS TRANSAKSI ====================
+
         window.updateStatus = function(id, status) {
             if (!id) return;
             
@@ -1573,7 +1634,8 @@
             }).catch(err => alert('Gagal: ' + err.message));
         };
 
-        // HAPUS TRANSAKSI
+        // ==================== HAPUS TRANSAKSI ====================
+
         window.hapusTransaksi = function(id) {
             if (!id) return;
             
@@ -1584,7 +1646,8 @@
             }
         };
 
-        // HAPUS TESTIMONI
+        // ==================== HAPUS TESTIMONI ====================
+
         window.hapusTestimoni = function(id) {
             if (!id) return;
             
@@ -1595,7 +1658,8 @@
             }
         };
 
-        // LIHAT GAMBAR
+        // ==================== LIHAT GAMBAR ====================
+
         window.lihatGambar = function(url) {
             if (!url) return;
             document.getElementById('modalContent').innerHTML = `<img src="${url}">`;
@@ -1612,16 +1676,19 @@
             }
         };
 
-        // SEARCH EVENT
+        // ==================== SEARCH EVENT ====================
+
         document.getElementById('searchProduk')?.addEventListener('input', renderProduk);
         document.getElementById('searchTransaksi')?.addEventListener('input', renderTransaksi);
         document.getElementById('searchTestimoni')?.addEventListener('input', renderTestimoni);
         
-        // FILTER EVENT
+        // ==================== FILTER EVENT ====================
+
         document.getElementById('filterStatusTransaksi')?.addEventListener('change', renderTransaksi);
         document.getElementById('filterMetodeTransaksi')?.addEventListener('change', renderTransaksi);
 
-        // TAB MENU
+        // ==================== TAB MENU ====================
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1633,7 +1700,8 @@
             });
         });
 
-        // TEST API
+        // ==================== TEST API ====================
+
         document.getElementById('testApi').onclick = async function() {
             try {
                 const response = await fetch('qris_handler.php', {
@@ -1657,4 +1725,4 @@
         console.log('Panel Admin siap!');
     </script>
 </body>
-    </html>
+                        </html>
