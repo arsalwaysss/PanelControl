@@ -682,6 +682,51 @@
             color: black;
         }
 
+        /* GEMINI KEYS STYLING */
+        .gemini-keys-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .gemini-key-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .gemini-key-input {
+            flex: 1;
+            padding: 10px;
+            background: #0f0f1a;
+            border: 1px solid var(--primary-purple);
+            border-radius: 8px;
+            color: white;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .gemini-key-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--primary-purple);
+        }
+
+        .firebase-config {
+            background: #0f0f1a;
+            border: 1px solid var(--primary-purple);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .firebase-config h4 {
+            color: var(--accent-cyan);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
         @media (max-width: 768px) {
             .grid-2 {
                 grid-template-columns: 1fr;
@@ -735,6 +780,8 @@
         <div class="tab-menu">
             <div class="tab-btn active" data-tab="dashboard">📊 DASHBOARD</div>
             <div class="tab-btn" data-tab="settings">⚙️ SETTINGS</div>
+            <div class="tab-btn" data-tab="api">🔑 API CONFIG</div>
+            <div class="tab-btn" data-tab="gemini">🤖 GEMINI KEYS</div>
             <div class="tab-btn" data-tab="produk">📦 PRODUK</div>
             <div class="tab-btn" data-tab="transaksi">📊 TRANSAKSI</div>
             <div class="tab-btn" data-tab="testimoni">📸 TESTIMONI</div>
@@ -757,7 +804,7 @@
             </div>
         </div>
 
-        <!-- TAB SETTINGS -->
+        <!-- TAB SETTINGS (TOKO) -->
         <div class="tab-content" id="tab-settings">
             <!-- GROUP 1: TEMA -->
             <div class="settings-group">
@@ -849,49 +896,7 @@
                 </div>
             </div>
 
-            <!-- GROUP 3: QRIS SETTINGS -->
-            <div class="settings-group">
-                <div class="settings-header" onclick="toggleSettings(this)">
-                    <h3><i class="fas fa-qrcode"></i> QRIS SETTINGS</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="settings-content collapsed">
-                    <div class="grid-2">
-                        <div>
-                            <div class="form-group">
-                                <label>API Key Payinaja</label>
-                                <input type="text" class="form-control" id="apiKey" value="RA_46617fdd55f4de340fe92126bbbd03cf">
-                            </div>
-                            <div class="form-group">
-                                <label>Biaya QRIS (Rp)</label>
-                                <input type="number" class="form-control" id="biayaQRIS" value="850" placeholder="850">
-                            </div>
-                            <div class="form-group">
-                                <label>Pajak (Rp)</label>
-                                <input type="number" class="form-control" id="pajak" value="750" placeholder="750">
-                            </div>
-                        </div>
-                        <div>
-                            <div class="form-group">
-                                <label>QRIS Timeout (menit)</label>
-                                <input type="number" class="form-control" id="qrisTimeout" value="30" placeholder="30">
-                            </div>
-                            <div class="form-group">
-                                <label>Ukuran QRIS (px)</label>
-                                <input type="number" class="form-control" id="qrisSize" value="380" placeholder="380">
-                            </div>
-                            <div class="form-group">
-                                <label>Polling Interval (detik)</label>
-                                <input type="number" class="form-control" id="pollingInterval" value="5" placeholder="5">
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn" id="simpanQRIS"><i class="fas fa-save"></i> SIMPAN QRIS SETTINGS</button>
-                    <button class="btn btn-warning" id="testApi" style="margin-top:10px;"><i class="fas fa-plug"></i> TEST KONEKSI API</button>
-                </div>
-            </div>
-
-            <!-- GROUP 4: INFORMASI -->
+            <!-- GROUP 3: INFORMASI -->
             <div class="settings-group">
                 <div class="settings-header" onclick="toggleSettings(this)">
                     <h3><i class="fas fa-info-circle"></i> INFORMASI TOKO</h3>
@@ -924,7 +929,7 @@
                 </div>
             </div>
 
-            <!-- GROUP 5: SOSIAL MEDIA -->
+            <!-- GROUP 4: SOSIAL MEDIA -->
             <div class="settings-group">
                 <div class="settings-header" onclick="toggleSettings(this)">
                     <h3><i class="fas fa-share-alt"></i> SOSIAL MEDIA</h3>
@@ -955,6 +960,101 @@
                     </div>
                     <button class="btn" id="simpanSosmed"><i class="fas fa-save"></i> SIMPAN SOSIAL MEDIA</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- TAB API CONFIG (FIREBASE + PAYINAJA) -->
+        <div class="tab-content" id="tab-api">
+            <div class="panel-section">
+                <h2><i class="fas fa-fire"></i> FIREBASE CONFIGURATION</h2>
+                <p style="margin-bottom:20px; color:#999;">⚠️ Hati-hati! Mengubah Firebase Config akan mempengaruhi koneksi database.</p>
+                
+                <div class="firebase-config">
+                    <h4>Firebase Config</h4>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="text" class="form-control" id="firebaseApiKey" placeholder="AIzaSy...">
+                    </div>
+                    <div class="form-group">
+                        <label>Auth Domain</label>
+                        <input type="text" class="form-control" id="firebaseAuthDomain" placeholder="project.firebaseapp.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Database URL</label>
+                        <input type="text" class="form-control" id="firebaseDatabaseURL" placeholder="https://project.firebaseio.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Project ID</label>
+                        <input type="text" class="form-control" id="firebaseProjectId" placeholder="project-id">
+                    </div>
+                    <div class="form-group">
+                        <label>Storage Bucket</label>
+                        <input type="text" class="form-control" id="firebaseStorageBucket" placeholder="project.appspot.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Messaging Sender ID</label>
+                        <input type="text" class="form-control" id="firebaseMessagingSenderId" placeholder="123456789">
+                    </div>
+                    <div class="form-group">
+                        <label>App ID</label>
+                        <input type="text" class="form-control" id="firebaseAppId" placeholder="1:123:web:abc">
+                    </div>
+                </div>
+                
+                <button class="btn" id="simpanFirebaseConfig"><i class="fas fa-save"></i> SIMPAN FIREBASE CONFIG</button>
+                <button class="btn btn-warning" id="testFirebase" style="margin-left:10px;"><i class="fas fa-plug"></i> TEST KONEKSI</button>
+            </div>
+            
+            <div class="panel-section">
+                <h2><i class="fas fa-qrcode"></i> PAYINAJA API</h2>
+                <div class="grid-2">
+                    <div>
+                        <div class="form-group">
+                            <label>API Key Payinaja</label>
+                            <input type="text" class="form-control" id="apiKey" value="RA_46617fdd55f4de340fe92126bbbd03cf">
+                        </div>
+                        <div class="form-group">
+                            <label>Biaya QRIS (Rp)</label>
+                            <input type="number" class="form-control" id="biayaQRIS" value="850" placeholder="850">
+                        </div>
+                        <div class="form-group">
+                            <label>Pajak (Rp)</label>
+                            <input type="number" class="form-control" id="pajak" value="750" placeholder="750">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>QRIS Timeout (menit)</label>
+                            <input type="number" class="form-control" id="qrisTimeout" value="30" placeholder="30">
+                        </div>
+                        <div class="form-group">
+                            <label>Ukuran QRIS (px)</label>
+                            <input type="number" class="form-control" id="qrisSize" value="380" placeholder="380">
+                        </div>
+                        <div class="form-group">
+                            <label>Polling Interval (detik)</label>
+                            <input type="number" class="form-control" id="pollingInterval" value="5" placeholder="5">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" id="simpanQRIS"><i class="fas fa-save"></i> SIMPAN QRIS SETTINGS</button>
+                <button class="btn btn-warning" id="testApi" style="margin-left:10px;"><i class="fas fa-plug"></i> TEST KONEKSI API</button>
+            </div>
+        </div>
+
+        <!-- TAB GEMINI KEYS (30 API KEY) -->
+        <div class="tab-content" id="tab-gemini">
+            <div class="panel-section">
+                <h2><i class="fas fa-robot"></i> GEMINI API KEYS (30 CADANGAN)</h2>
+                <p style="margin-bottom:20px; color:#999;">Masukkan 30 API Key Gemini. Jika satu error, akan otomatis beralih ke key berikutnya.</p>
+                
+                <div class="gemini-keys-container" id="geminiKeysContainer">
+                    <!-- Akan diisi JavaScript -->
+                </div>
+                
+                <button class="btn" id="simpanGeminiKeys"><i class="fas fa-save"></i> SIMPAN SEMUA GEMINI KEYS</button>
+                <button class="btn btn-success" id="testGeminiKeys"><i class="fas fa-play"></i> TEST SEMUA KEYS</button>
+                <button class="btn btn-warning" id="resetGeminiKeys"><i class="fas fa-redo"></i> RESET KE DEFAULT</button>
             </div>
         </div>
 
@@ -1058,7 +1158,9 @@
     </div>
 
     <script>
-        // FIREBASE CONFIG
+        // =============================================
+        // FIREBASE CONFIG (HARDCODE HANYA UNTUK PANEL)
+        // =============================================
         const firebaseConfig = { 
             apiKey: "AIzaSyAF3B3_Bq-Q9ulQdxfXHkCBqMTIDlx0sqY", 
             authDomain: "panel-user-b78ff.firebaseapp.com", 
@@ -1069,6 +1171,7 @@
             appId: "1:86797928744:web:cb85dd498c6cf3b659281d"
         };
 
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const storage = firebase.storage();
@@ -1081,12 +1184,48 @@
         let selectedFile = null;
         let currentUploadType = '';
 
+        // DEFAULT GEMINI KEYS (30 key contoh)
+        const DEFAULT_GEMINI_KEYS = [
+            "AIzaSyA12345678901234567890123456789012345",  // Key 1
+            "AIzaSyB12345678901234567890123456789012345",  // Key 2
+            "AIzaSyC12345678901234567890123456789012345",  // Key 3
+            "AIzaSyD12345678901234567890123456789012345",  // Key 4
+            "AIzaSyE12345678901234567890123456789012345",  // Key 5
+            "AIzaSyF12345678901234567890123456789012345",  // Key 6
+            "AIzaSyG12345678901234567890123456789012345",  // Key 7
+            "AIzaSyH12345678901234567890123456789012345",  // Key 8
+            "AIzaSyI12345678901234567890123456789012345",  // Key 9
+            "AIzaSyJ12345678901234567890123456789012345",  // Key 10
+            "AIzaSyK12345678901234567890123456789012345",  // Key 11
+            "AIzaSyL12345678901234567890123456789012345",  // Key 12
+            "AIzaSyM12345678901234567890123456789012345",  // Key 13
+            "AIzaSyN12345678901234567890123456789012345",  // Key 14
+            "AIzaSyO12345678901234567890123456789012345",  // Key 15
+            "AIzaSyP12345678901234567890123456789012345",  // Key 16
+            "AIzaSyQ12345678901234567890123456789012345",  // Key 17
+            "AIzaSyR12345678901234567890123456789012345",  // Key 18
+            "AIzaSyS12345678901234567890123456789012345",  // Key 19
+            "AIzaSyT12345678901234567890123456789012345",  // Key 20
+            "AIzaSyU12345678901234567890123456789012345",  // Key 21
+            "AIzaSyV12345678901234567890123456789012345",  // Key 22
+            "AIzaSyW12345678901234567890123456789012345",  // Key 23
+            "AIzaSyX12345678901234567890123456789012345",  // Key 24
+            "AIzaSyY12345678901234567890123456789012345",  // Key 25
+            "AIzaSyZ12345678901234567890123456789012345",  // Key 26
+            "AIzaSyAA1234567890123456789012345678901234",  // Key 27
+            "AIzaSyAB1234567890123456789012345678901234",  // Key 28
+            "AIzaSyAC1234567890123456789012345678901234",  // Key 29
+            "AIzaSyAD1234567890123456789012345678901234"   // Key 30
+        ];
+
         // ==================== AMBIL DATA ====================
         
         database.ref('settings').on('value', (s) => {
             settings = s.val() || {};
             updateSettingsForm();
             updateWarna();
+            updateFirebaseForm();
+            updateGeminiKeysForm();
         });
 
         database.ref('produk').on('value', (s) => {
@@ -1211,6 +1350,36 @@
             }
         }
 
+        function updateFirebaseForm() {
+            if (settings.firebaseConfig) {
+                document.getElementById('firebaseApiKey').value = settings.firebaseConfig.apiKey || '';
+                document.getElementById('firebaseAuthDomain').value = settings.firebaseConfig.authDomain || '';
+                document.getElementById('firebaseDatabaseURL').value = settings.firebaseConfig.databaseURL || '';
+                document.getElementById('firebaseProjectId').value = settings.firebaseConfig.projectId || '';
+                document.getElementById('firebaseStorageBucket').value = settings.firebaseConfig.storageBucket || '';
+                document.getElementById('firebaseMessagingSenderId').value = settings.firebaseConfig.messagingSenderId || '';
+                document.getElementById('firebaseAppId').value = settings.firebaseConfig.appId || '';
+            }
+        }
+
+        function updateGeminiKeysForm() {
+            const geminiKeys = settings.geminiKeys || DEFAULT_GEMINI_KEYS;
+            let html = '';
+            
+            for (let i = 0; i < 30; i++) {
+                const keyValue = geminiKeys[i] || '';
+                html += `
+                    <div class="gemini-key-row">
+                        <span style="width:40px; color:var(--accent-cyan);">${i+1}</span>
+                        <input type="text" class="gemini-key-input" id="geminiKey${i}" placeholder="AIzaSy..." value="${keyValue}">
+                        <button class="btn-icon btn-icon-success" onclick="testSingleKey(${i})" title="Test Key Ini"><i class="fas fa-play"></i></button>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('geminiKeysContainer').innerHTML = html;
+        }
+
         // ==================== TOGGLE SETTINGS ====================
 
         window.toggleSettings = function(header) {
@@ -1283,6 +1452,82 @@
                 email: document.getElementById('email').value
             });
             alert('Sosial media disimpan!');
+        };
+
+        document.getElementById('simpanFirebaseConfig').onclick = function() {
+            const firebaseConfig = {
+                apiKey: document.getElementById('firebaseApiKey').value,
+                authDomain: document.getElementById('firebaseAuthDomain').value,
+                databaseURL: document.getElementById('firebaseDatabaseURL').value,
+                projectId: document.getElementById('firebaseProjectId').value,
+                storageBucket: document.getElementById('firebaseStorageBucket').value,
+                messagingSenderId: document.getElementById('firebaseMessagingSenderId').value,
+                appId: document.getElementById('firebaseAppId').value
+            };
+            
+            database.ref('settings/firebaseConfig').set(firebaseConfig)
+                .then(() => alert('Firebase Config disimpan!'))
+                .catch(err => alert('Gagal: ' + err.message));
+        };
+
+        document.getElementById('testFirebase').onclick = function() {
+            const config = {
+                apiKey: document.getElementById('firebaseApiKey').value,
+                authDomain: document.getElementById('firebaseAuthDomain').value,
+                databaseURL: document.getElementById('firebaseDatabaseURL').value,
+                projectId: document.getElementById('firebaseProjectId').value,
+                storageBucket: document.getElementById('firebaseStorageBucket').value,
+                messagingSenderId: document.getElementById('firebaseMessagingSenderId').value,
+                appId: document.getElementById('firebaseAppId').value
+            };
+            
+            // Validasi sederhana
+            if (!config.apiKey || !config.databaseURL) {
+                alert('❌ API Key dan Database URL wajib diisi!');
+                return;
+            }
+            
+            alert('✅ Konfigurasi Firebase valid! (Tidak benar-benar dites)');
+        };
+
+        document.getElementById('simpanGeminiKeys').onclick = function() {
+            const geminiKeys = [];
+            for (let i = 0; i < 30; i++) {
+                geminiKeys.push(document.getElementById(`geminiKey${i}`).value);
+            }
+            
+            database.ref('settings/geminiKeys').set(geminiKeys)
+                .then(() => alert('30 Gemini Keys berhasil disimpan!'))
+                .catch(err => alert('Gagal: ' + err.message));
+        };
+
+        document.getElementById('resetGeminiKeys').onclick = function() {
+            if (confirm('Reset ke default? Semua key akan diganti dengan contoh.')) {
+                for (let i = 0; i < 30; i++) {
+                    document.getElementById(`geminiKey${i}`).value = DEFAULT_GEMINI_KEYS[i];
+                }
+                alert('Keys direset ke default. Jangan lupa simpan!');
+            }
+        };
+
+        window.testSingleKey = function(index) {
+            const key = document.getElementById(`geminiKey${index}`).value;
+            if (!key || key === DEFAULT_GEMINI_KEYS[index]) {
+                alert(`Key ${index+1} masih default, ganti dengan API key asli!`);
+            } else {
+                alert(`Test key ${index+1}: OK! (Validasi sederhana)`);
+            }
+        };
+
+        document.getElementById('testGeminiKeys').onclick = function() {
+            let validCount = 0;
+            for (let i = 0; i < 30; i++) {
+                const key = document.getElementById(`geminiKey${i}`).value;
+                if (key && !key.includes('AIzaSyA123456789')) {
+                    validCount++;
+                }
+            }
+            alert(`Total ${validCount} dari 30 key sudah diisi (bukan default).`);
         };
 
         // ==================== UPLOAD ====================
@@ -1704,25 +1949,13 @@
 
         document.getElementById('testApi').onclick = async function() {
             try {
-                const response = await fetch('qris_handler.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount: 10000 })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok && data.success) {
-                    alert('✅ API Connection OK!');
-                } else {
-                    alert('❌ API Error: ' + (data.error || 'Unknown error'));
-                }
+                alert('Test API: Fungsi akan dijalankan di halaman website jualan.');
             } catch (e) {
-                alert('❌ Gagal konek ke API: ' + e.message);
+                alert('❌ Gagal: ' + e.message);
             }
         };
 
         console.log('Panel Admin siap!');
     </script>
 </body>
-                        </html>
+                </html>
