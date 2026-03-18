@@ -707,10 +707,47 @@
             font-size: 13px;
         }
 
+        .gemini-key-input.valid {
+            border-color: #00cc88;
+            background: rgba(0, 204, 136, 0.1);
+        }
+
+        .gemini-key-input.invalid {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .gemini-key-input.default {
+            border-color: #ffaa00;
+            background: rgba(255, 170, 0, 0.1);
+        }
+
         .gemini-key-input:focus {
             outline: none;
             border-color: var(--accent-cyan);
             box-shadow: 0 0 10px var(--primary-purple);
+        }
+
+        .key-status {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .key-status.valid {
+            background: #00cc88;
+            box-shadow: 0 0 10px #00cc88;
+        }
+
+        .key-status.invalid {
+            background: #ff4444;
+            box-shadow: 0 0 10px #ff4444;
+        }
+
+        .key-status.default {
+            background: #ffaa00;
+            box-shadow: 0 0 10px #ffaa00;
         }
 
         .firebase-config {
@@ -1362,16 +1399,43 @@
             }
         }
 
+        function validateGeminiKey(key) {
+            if (!key) return 'empty';
+            if (key.includes('AIzaSyA123456789')) return 'default';
+            if (key.length < 20) return 'invalid';
+            if (key.startsWith('AIzaSy')) return 'valid';
+            return 'invalid';
+        }
+
         function updateGeminiKeysForm() {
             const geminiKeys = settings.geminiKeys || DEFAULT_GEMINI_KEYS;
             let html = '';
             
             for (let i = 0; i < 30; i++) {
                 const keyValue = geminiKeys[i] || '';
+                const status = validateGeminiKey(keyValue);
+                let statusClass = '';
+                let statusText = '';
+                
+                if (status === 'valid') {
+                    statusClass = 'valid';
+                    statusText = '✅ Valid';
+                } else if (status === 'default') {
+                    statusClass = 'default';
+                    statusText = '⚠️ Default';
+                } else if (status === 'invalid') {
+                    statusClass = 'invalid';
+                    statusText = '❌ Invalid';
+                } else {
+                    statusClass = 'invalid';
+                    statusText = '❌ Kosong';
+                }
+                
                 html += `
                     <div class="gemini-key-row">
-                        <span style="width:40px; color:var(--accent-cyan);">${i+1}</span>
-                        <input type="text" class="gemini-key-input" id="geminiKey${i}" placeholder="AIzaSy..." value="${keyValue}">
+                        <span style="width:40px; color:var(--accent-cyan); font-weight:bold;">${i+1}</span>
+                        <input type="text" class="gemini-key-input ${statusClass}" id="geminiKey${i}" placeholder="AIzaSy..." value="${keyValue}">
+                        <span class="key-status ${statusClass}" title="${statusText}"></span>
                         <button class="btn-icon btn-icon-success" onclick="testSingleKey(${i})" title="Test Key Ini"><i class="fas fa-play"></i></button>
                     </div>
                 `;
@@ -1497,8 +1561,11 @@
             }
             
             database.ref('settings/geminiKeys').set(geminiKeys)
-                .then(() => alert('30 Gemini Keys berhasil disimpan!'))
-                .catch(err => alert('Gagal: ' + err.message));
+                .then(() => {
+                    alert('✅ 30 Gemini Keys berhasil disimpan!');
+                    updateGeminiKeysForm();
+                })
+                .catch(err => alert('❌ Gagal: ' + err.message));
         };
 
         document.getElementById('resetGeminiKeys').onclick = function() {
@@ -1506,28 +1573,48 @@
                 for (let i = 0; i < 30; i++) {
                     document.getElementById(`geminiKey${i}`).value = DEFAULT_GEMINI_KEYS[i];
                 }
+                updateGeminiKeysForm();
                 alert('Keys direset ke default. Jangan lupa simpan!');
             }
         };
 
         window.testSingleKey = function(index) {
             const key = document.getElementById(`geminiKey${index}`).value;
-            if (!key || key === DEFAULT_GEMINI_KEYS[index]) {
-                alert(`Key ${index+1} masih default, ganti dengan API key asli!`);
+            const status = validateGeminiKey(key);
+            
+            if (status === 'valid') {
+                alert(`✅ Key ${index+1} valid (format benar)!`);
+            } else if (status === 'default') {
+                alert(`⚠️ Key ${index+1} masih default, ganti dengan API key asli!`);
+            } else if (status === 'invalid') {
+                alert(`❌ Key ${index+1} tidak valid! (harus dimulai dengan AIzaSy dan panjang minimal 20 karakter)`);
             } else {
-                alert(`Test key ${index+1}: OK! (Validasi sederhana)`);
+                alert(`❌ Key ${index+1} kosong!`);
             }
         };
 
         document.getElementById('testGeminiKeys').onclick = function() {
             let validCount = 0;
+            let defaultCount = 0;
+            let invalidCount = 0;
+            let emptyCount = 0;
+            
             for (let i = 0; i < 30; i++) {
                 const key = document.getElementById(`geminiKey${i}`).value;
-                if (key && !key.includes('AIzaSyA123456789')) {
-                    validCount++;
-                }
+                const status = validateGeminiKey(key);
+                
+                if (status === 'valid') validCount++;
+                else if (status === 'default') defaultCount++;
+                else if (status === 'invalid') invalidCount++;
+                else emptyCount++;
             }
-            alert(`Total ${validCount} dari 30 key sudah diisi (bukan default).`);
+            
+            alert(`📊 HASIL TEST:\n` +
+                  `✅ Key valid: ${validCount}\n` +
+                  `⚠️ Key default: ${defaultCount}\n` +
+                  `❌ Key invalid: ${invalidCount}\n` +
+                  `❌ Key kosong: ${emptyCount}\n\n` +
+                  `Total 30 key`);
         };
 
         // ==================== UPLOAD ====================
@@ -1958,4 +2045,4 @@
         console.log('Panel Admin siap!');
     </script>
 </body>
-                </html>
+    </html>
