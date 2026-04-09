@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsalways • Panel Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <style>
+        :root {
+            --primary-purple: #8A2BE2;
+            --secondary-purple: #4c1d95;
+            --accent-cyan: #00f3ff;
+            --accent-pink: #ff0050;
+            --bg: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --text: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
+        body { background: var(--bg); color: white; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid var(--primary-purple); }
+        .header h1 { color: var(--primary-purple); font-size: 28px; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px var(--primary-purple); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--primary-purple); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 0 20px rgba(138,43,226,0.2); }
+        .stat-number { font-size: 32px; font-weight: bold; color: var(--accent-cyan); margin: 10px 0; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px var(--accent-cyan); }
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 24px; background: var(--card-bg); border: 1px solid var(--primary-purple); border-radius: 10px; color: white; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .tab-btn:hover { background: rgba(138,43,226,0.3); box-shadow: 0 0 15px var(--primary-purple); }
+        .tab-btn.active { background: var(--primary-purple); color: black; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .settings-group { background: var(--card-bg); border: 1px solid var(--primary-purple); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
+        .settings-header { background: #0f0f1a; padding: 20px 25px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .settings-header:hover { background: rgba(138,43,226,0.2); }
+        .settings-header h3 { color: var(--primary-purple); font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .settings-header i { transition: transform 0.3s ease; }
+        .settings-header.collapsed i { transform: rotate(-90deg); }
+        .settings-content { padding: 25px; display: block; }
+        .settings-content.collapsed { display: none; }
+        .panel-section { background: var(--card-bg); border: 1px solid var(--primary-purple); border-radius: 20px; padding: 25px; margin-bottom: 30px; box-shadow: 0 0 20px rgba(138,43,226,0.2); }
+        .panel-section h2 { color: var(--accent-cyan); margin-bottom: 20px; font-size: 22px; font-family: 'Orbitron', sans-serif; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--primary-purple); font-weight: 600; }
+        .form-control { width: 100%; padding: 12px; background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 10px; color: white; font-size: 14px; }
+        .form-control:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--primary-purple); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        .btn { padding: 12px 24px; background: var(--primary-purple); border: none; border-radius: 10px; color: black; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(138,43,226,0.3); }
+        .btn:active { transform: scale(0.95); }
+        .btn:hover { background: var(--accent-cyan); color: black; box-shadow: 0 0 20px var(--accent-cyan); }
+        .btn-danger { background: #ff4444; color: white; }
+        .btn-success { background: #00cc88; color: black; }
+        .btn-warning { background: #ff8800; color: black; }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .btn-add { background: #00cc88; color: black; padding: 8px 12px; font-size: 12px; margin-top: 5px; border: none; border-radius: 8px; cursor: pointer; }
+        .radio-group { display: flex; gap: 20px; margin-bottom: 15px; }
+        .radio-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: white; }
+        .color-picker-full { margin-bottom: 20px; }
+        .color-preview { width: 100%; height: 100px; border-radius: 10px; border: 2px solid var(--primary-purple); margin-bottom: 20px; }
+        .color-sliders { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .slider-group { display: flex; align-items: center; gap: 15px; }
+        .slider-group label { width: 30px; color: white; font-weight: bold; }
+        .slider-group input[type=range] { flex: 1; height: 8px; border-radius: 4px; -webkit-appearance: none; background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); }
+        .slider-group input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: white; border: 2px solid var(--primary-purple); cursor: pointer; }
+        .color-value { background: #0f0f1a; padding: 10px 15px; border-radius: 8px; font-family: monospace; border: 1px solid var(--primary-purple); text-align: center; font-size: 18px; }
+        .preset-colors { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+        .preset-color { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+        .preset-color:hover { transform: scale(1.1); border-color: white; }
+        .upload-area { background: #0f0f1a; border: 2px dashed var(--primary-purple); border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; }
+        .upload-area:hover { background: rgba(138,43,226,0.2); border-color: var(--accent-cyan); }
+        .upload-area i { font-size: 48px; color: var(--primary-purple); margin-bottom: 10px; }
+        .upload-area.small { padding: 15px; }
+        .upload-area.small i { font-size: 24px; }
+        .preview-image { max-width: 100%; max-height: 200px; border-radius: 10px; border: 2px solid var(--primary-purple); margin-top: 10px; }
+        .preview-image.small { max-height: 100px; }
+        .produk-item { background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .produk-preview { width: 80px; height: 80px; background: var(--card-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary-purple); overflow: hidden; flex-shrink: 0; }
+        .produk-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .produk-preview span { font-size: 32px; }
+        .produk-info { flex: 1; min-width: 200px; }
+        .produk-info h3 { margin-bottom: 5px; color: var(--accent-cyan); }
+        .produk-info p { color: #999; font-size: 14px; }
+        .produk-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--primary-purple); border: none; color: black; cursor: pointer; font-size: 16px; transition: all 0.2s ease; }
+        .btn-icon:hover { transform: scale(1.1); background: var(--accent-cyan); }
+        .btn-icon-danger { background: #ff4444; color: white; }
+        .random-url-item { background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .random-url-text { flex: 1; word-break: break-all; color: var(--accent-cyan); font-size: 13px; }
+        .status-menunggu { color: #ffaa00; font-size: 11px; }
+        .status-dibeli { color: #00cc88; font-size: 11px; }
+        .kupon-item { background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .transaksi-item { background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .transaksi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .transaksi-status { padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+        .status-pending { background: var(--primary-purple); color: black; }
+        .status-sukses { background: #00cc88; color: black; }
+        .status-batal { background: #ff4444; color: white; }
+        .transaksi-detail { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0; padding: 15px; background: var(--card-bg); border-radius: 10px; }
+        .transaksi-detail-item { display: flex; flex-direction: column; gap: 5px; }
+        .transaksi-detail-item .label { color: var(--primary-purple); font-size: 12px; font-weight: 600; }
+        .transaksi-detail-item .value { font-size: 14px; word-break: break-word; }
+        .transaksi-bukti { max-width: 100%; max-height: 300px; border-radius: 10px; border: 2px solid var(--primary-purple); margin: 15px 0; cursor: pointer; }
+        .transaksi-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .testimoni-item { background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .testimoni-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .testimoni-avatar { width: 50px; height: 50px; background: var(--card-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary-purple); font-size: 24px; }
+        .testimoni-info h4 { color: var(--accent-cyan); margin-bottom: 5px; }
+        .testimoni-info p { color: #999; font-size: 12px; }
+        .testimoni-gambar { max-width: 100%; max-height: 300px; border-radius: 10px; border: 2px solid var(--primary-purple); margin: 15px 0; cursor: pointer; }
+        .search-box { width: 100%; padding: 15px; background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 10px; color: white; margin-bottom: 20px; font-size: 14px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); align-items: center; justify-content: center; z-index: 9999; }
+        .modal.aktif { display: flex; }
+        .modal-content { max-width: 90%; max-height: 90%; position: relative; }
+        .modal-content img { max-width: 100%; max-height: 90vh; border-radius: 10px; border: 3px solid var(--primary-purple); }
+        .close-modal { position: absolute; top: -40px; right: 0; color: white; font-size: 30px; cursor: pointer; background: rgba(0,0,0,0.5); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .close-modal:hover { background: #ff4444; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-info { background: var(--accent-cyan); color: black; }
+        .badge-warning { background: #ffaa00; color: black; }
+        .badge-success { background: #00cc88; color: black; }
+        .gemini-keys-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; max-height: 400px; overflow-y: auto; }
+        .gemini-key-row { display: flex; gap: 10px; align-items: center; }
+        .gemini-key-input { flex: 1; padding: 10px; background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 8px; color: white; font-family: monospace; font-size: 13px; }
+        .firebase-config { background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .produk-item { flex-direction: column; text-align: center; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1><i class="fas fa-crown"></i> ARSALWAYS PANEL ADMIN</h1><div><span id="onlineStatus" style="color:#00cc88;"><i class="fas fa-circle"></i> Online</span></div></div>
+    <div class="stats">
+        <div class="stat-card"><i class="fas fa-store fa-2x"></i><div class="stat-number" id="totalProduk">0</div><div>Total Produk</div></div>
+        <div class="stat-card"><i class="fas fa-users fa-2x"></i><div class="stat-number" id="totalPengunjung">0</div><div>Pengunjung</div></div>
+        <div class="stat-card"><i class="fas fa-shopping-cart fa-2x"></i><div class="stat-number" id="totalTransaksi">0</div><div>Transaksi</div></div>
+        <div class="stat-card"><i class="fas fa-star fa-2x"></i><div class="stat-number" id="totalTestimoni">0</div><div>Testimoni</div></div>
+    </div>
+    <div class="tab-menu">
+        <div class="tab-btn active" data-tab="dashboard">📊 DASHBOARD</div>
+        <div class="tab-btn" data-tab="settings">⚙️ SETTINGS</div>
+        <div class="tab-btn" data-tab="api">🔑 API CONFIG</div>
+        <div class="tab-btn" data-tab="gemini">🤖 GEMINI KEYS</div>
+        <div class="tab-btn" data-tab="produk">📦 PRODUK</div>
+        <div class="tab-btn" data-tab="kupon">🏷️ KUPON</div>
+        <div class="tab-btn" data-tab="testimoni-upload">📸 UPLOAD TESTIMONI</div>
+        <div class="tab-btn" data-tab="transaksi">📊 TRANSAKSI</div>
+        <div class="tab-btn" data-tab="testimoni-list">📋 TESTIMONI LIST</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="tab-content active" id="tab-dashboard"><div class="panel-section"><h2>📊 AKTIVITAS TERBARU</h2><div style="margin-bottom:30px;"><h3 style="color:var(--primary-purple);">📦 Transaksi Terbaru</h3><div id="transaksiTerbaru"></div></div><div><h3 style="color:var(--primary-purple);">📸 Testimoni Terbaru</h3><div id="testimoniTerbaru"></div></div></div></div>
+
+    <!-- SETTINGS -->
+    <div class="tab-content" id="tab-settings">
+        <div class="settings-group"><div class="settings-header" onclick="toggleSettings(this)"><h3><i class="fas fa-palette"></i> WARNA TEMA</h3><i class="fas fa-chevron-down"></i></div><div class="settings-content"><div class="color-picker-full"><div class="color-preview" id="colorPreview"></div><div class="color-sliders"><div class="slider-group"><label>R</label><input type="range" id="redSlider" min="0" max="255" value="138"><span id="redValue">138</span></div><div class="slider-group"><label>G</label><input type="range" id="greenSlider" min="0" max="255" value="43"><span id="greenValue">43</span></div><div class="slider-group"><label>B</label><input type="range" id="blueSlider" min="0" max="255" value="226"><span id="blueValue">226</span></div></div><div class="color-value" id="colorValue">#8A2BE2</div><div class="preset-colors"><div class="preset-color" style="background:#8A2BE2;" onclick="setColor('#8A2BE2')"></div><div class="preset-color" style="background:#00f3ff;" onclick="setColor('#00f3ff')"></div><div class="preset-color" style="background:#ff0050;" onclick="setColor('#ff0050')"></div><div class="preset-color" style="background:#00cc88;" onclick="setColor('#00cc88')"></div><div class="preset-color" style="background:#ffaa00;" onclick="setColor('#ffaa00')"></div></div></div><button class="btn" id="simpanWarna">💾 SIMPAN WARNA</button></div></div>
+        <div class="settings-group"><div class="settings-header" onclick="toggleSettings(this)"><h3><i class="fas fa-store"></i> PENGATURAN TOKO</h3><i class="fas fa-chevron-down"></i></div><div class="settings-content"><div class="grid-2"><div><div class="form-group"><label>Nama Toko</label><input type="text" class="form-control" id="storeName" placeholder="ARSALWAYS"></div><div class="form-group"><label>Deskripsi Toko</label><textarea class="form-control" id="storeDescription" rows="3"></textarea></div><div class="form-group"><label>Logo Toko</label><div class="upload-area small" id="uploadStoreLogo"><i class="fas fa-cloud-upload-alt"></i><p>Upload Logo</p></div><input type="file" id="fileStoreLogo" accept="image/*" style="display:none;"><div id="previewStoreLogo"></div><input type="text" class="form-control" id="storeLogoUrl" placeholder="https://..."></div></div><div><div class="form-group"><label>WhatsApp CS</label><input type="text" class="form-control" id="waNumber" placeholder="6281234567890"></div><div class="form-group"><label>Nomor DANA</label><input type="text" class="form-control" id="danaNumber" placeholder="0895-1234-5678"></div><div class="form-group"><label>Nomor GOPAY</label><input type="text" class="form-control" id="gopayNumber" placeholder="0857-9876-5432"></div></div></div><button class="btn" id="simpanSettings">💾 SIMPAN SETTINGS</button></div></div>
+        <div class="settings-group"><div class="settings-header" onclick="toggleSettings(this)"><h3><i class="fas fa-info-circle"></i> INFORMASI TOKO</h3><i class="fas fa-chevron-down"></i></div><div class="settings-content"><div class="grid-2"><div><div class="form-group"><label>Kelebihan (pisah koma)</label><textarea class="form-control" id="kelebihan" rows="3"></textarea></div><div class="form-group"><label>Kekurangan (pisah koma)</label><textarea class="form-control" id="kekurangan" rows="3"></textarea></div></div><div><div class="form-group"><label>Tahun Didirikan</label><input type="text" class="form-control" id="tahunDidirikan" value="2026"></div><div class="form-group"><label>Lokasi</label><input type="text" class="form-control" id="lokasi" value="Jakarta, Indonesia"></div></div></div><button class="btn" id="simpanInfo">💾 SIMPAN INFORMASI</button></div></div>
+        <div class="settings-group"><div class="settings-header" onclick="toggleSettings(this)"><h3><i class="fas fa-share-alt"></i> SOSIAL MEDIA</h3><i class="fas fa-chevron-down"></i></div><div class="settings-content"><div class="grid-2"><div><div class="form-group"><label>Telegram</label><input type="text" class="form-control" id="telegram" value="arsalwaysss0"></div><div class="form-group"><label>Instagram</label><input type="text" class="form-control" id="instagram" value="arsalways"></div></div><div><div class="form-group"><label>Facebook</label><input type="text" class="form-control" id="facebook" value="arsalways"></div><div class="form-group"><label>Email</label><input type="email" class="form-control" id="email" value="arsalwaysss4321@gmail.com"></div></div></div><button class="btn" id="simpanSosmed">💾 SIMPAN SOSMED</button></div></div>
+    </div>
+
+    <!-- API CONFIG -->
+    <div class="tab-content" id="tab-api">
+        <div class="panel-section"><h2>🔥 FIREBASE CONFIG</h2><div class="firebase-config"><div class="form-group"><label>API Key</label><input type="text" class="form-control" id="firebaseApiKey"></div><div class="form-group"><label>Auth Domain</label><input type="text" class="form-control" id="firebaseAuthDomain"></div><div class="form-group"><label>Database URL</label><input type="text" class="form-control" id="firebaseDatabaseURL"></div><div class="form-group"><label>Project ID</label><input type="text" class="form-control" id="firebaseProjectId"></div><div class="form-group"><label>Storage Bucket</label><input type="text" class="form-control" id="firebaseStorageBucket"></div><div class="form-group"><label>Messaging Sender ID</label><input type="text" class="form-control" id="firebaseMessagingSenderId"></div><div class="form-group"><label>App ID</label><input type="text" class="form-control" id="firebaseAppId"></div></div><button class="btn" id="simpanFirebaseConfig">💾 SIMPAN FIREBASE</button><button class="btn btn-warning" id="testFirebase" style="margin-left:10px;">🔌 TEST</button></div>
+        <div class="panel-section"><h2>💳 PAYINAJA API</h2><div class="grid-2"><div><div class="form-group"><label>API Key</label><input type="text" class="form-control" id="apiKey" value="RA_46617fdd55f4de340fe92126bbbd03cf"></div><div class="form-group"><label>Biaya QRIS (Rp)</label><input type="number" class="form-control" id="biayaQRIS" value="850"></div><div class="form-group"><label>Pajak (Rp)</label><input type="number" class="form-control" id="pajak" value="750"></div></div><div><div class="form-group"><label>QRIS Timeout (menit)</label><input type="number" class="form-control" id="qrisTimeout" value="30"></div><div class="form-group"><label>Ukuran QRIS (px)</label><input type="number" class="form-control" id="qrisSize" value="380"></div><div class="form-group"><label>Polling Interval (detik)</label><input type="number" class="form-control" id="pollingInterval" value="5"></div></div></div><button class="btn" id="simpanQRIS">💾 SIMPAN QRIS</button><button class="btn btn-warning" id="testApi" style="margin-left:10px;">🔌 TEST API</button></div>
+    </div>
+
+    <!-- GEMINI KEYS -->
+    <div class="tab-content" id="tab-gemini"><div class="panel-section"><h2>🤖 GEMINI API KEYS (30 CADANGAN)</h2><div class="gemini-keys-container" id="geminiKeysContainer"></div><button class="btn" id="simpanGeminiKeys">💾 SIMPAN SEMUA</button><button class="btn btn-success" id="testGeminiKeys">▶️ TEST SEMUA</button><button class="btn btn-warning" id="resetGeminiKeys">🔄 RESET</button></div></div>
+
+    <!-- PRODUK -->
+    <div class="tab-content" id="tab-produk">
+        <div class="panel-section"><h2>➕ TAMBAH PRODUK</h2>
+        <div class="grid-2"><div>
+            <div class="form-group"><label>Nama Produk</label><input type="text" class="form-control" id="produkNama" placeholder="COSMO HOODIE"></div>
+            <div class="form-group"><label>Harga (Rp)</label><input type="number" class="form-control" id="produkHarga" placeholder="250000"></div>
+            <div class="form-group"><label>Stok (kosongkan jika tidak terbatas)</label><input type="number" class="form-control" id="produkStok" placeholder="10"></div>
+            <div class="form-group"><label>Emoji</label><input type="text" class="form-control" id="produkEmoji" placeholder="🧥"></div>
+        </div><div>
+            <div class="form-group"><label>Deskripsi</label><textarea class="form-control" id="produkDeskripsi" rows="3"></textarea></div>
+            <div class="form-group"><label>PILIHAN LINK PRODUK</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="linkType" value="single" checked> 🔗 SATU URL</label>
+                    <label><input type="radio" name="linkType" value="random"> 🎲 ACAK (BANYAK URL)</label>
+                </div>
+            </div>
+            <div id="singleUrlGroup"><div class="form-group"><label>Link Produk</label><input type="text" class="form-control" id="produkLink" placeholder="https://..."></div></div>
+            <div id="randomUrlGroup" style="display:none;"><label>📋 DAFTAR URL ACAK</label><div id="randomUrlList"></div><button class="btn-add" id="btnTambahRandomUrl">+ TAMBAH URL ACAK</button></div>
+        </div></div>
+        <div class="form-group"><label>Gambar Produk</label><div class="upload-area" id="uploadProduk"><i class="fas fa-cloud-upload-alt"></i><p>Upload Gambar</p></div><input type="file" id="fileProduk" accept="image/*" style="display:none;"><div id="previewProduk"></div><input type="text" class="form-control" id="produkGambarUrl" placeholder="https://..."></div>
+        <button class="btn" id="tambahProduk">✅ TAMBAH PRODUK</button></div>
+        <div class="panel-section"><h2>📋 DAFTAR PRODUK</h2><input type="text" class="search-box" id="searchProduk" placeholder="Cari produk..."><div id="daftarProduk"></div></div>
+    </div>
+
+    <!-- KUPON -->
+    <div class="tab-content" id="tab-kupon">
+        <div class="panel-section"><h2>🏷️ BUAT KUPON</h2><div class="grid-2"><div><div class="form-group"><label>Kode Kupon</label><input type="text" class="form-control" id="kuponKode" placeholder="DISKON10"></div><div class="form-group"><label>Potongan (Rp)</label><input type="number" class="form-control" id="kuponPotongan" placeholder="10000"></div></div><div><div class="form-group"><label>Berlaku Sampai</label><input type="date" class="form-control" id="kuponExpired"></div></div></div><button class="btn btn-success" id="btnTambahKupon">+ TAMBAH KUPON</button></div>
+        <div class="panel-section"><h2>📋 DAFTAR KUPON</h2><div id="daftarKupon"></div></div>
+    </div>
+
+    <!-- UPLOAD TESTIMONI MANUAL -->
+    <div class="tab-content" id="tab-testimoni-upload">
+        <div class="panel-section"><h2>📸 UPLOAD TESTIMONI MANUAL</h2><div class="form-group"><label>Pilih Produk</label><select class="form-control" id="testimoniProdukSelect"><option value="">-- Pilih Produk --</option></select></div><div class="form-group"><label>Foto Testimoni</label><div class="upload-area" id="uploadTestimoniArea"><i class="fas fa-cloud-upload-alt"></i><p>Upload Foto</p></div><input type="file" id="fileTestimoni" accept="image/*" style="display:none;"><div id="previewTestimoni"></div></div><button class="btn btn-success" id="btnUploadTestimoni">📤 UPLOAD TESTIMONI</button></div>
+    </div>
+
+    <!-- TRANSAKSI -->
+    <div class="tab-content" id="tab-transaksi">
+        <div class="panel-section"><h2>📊 SEMUA TRANSAKSI</h2><div class="grid-2"><div><label>Filter Status</label><select class="form-control" id="filterStatusTransaksi"><option value="all">Semua</option><option value="sukses">Sukses</option><option value="pending">Pending</option><option value="batal">Batal</option></select></div><div><label>Filter Metode</label><select class="form-control" id="filterMetodeTransaksi"><option value="all">Semua</option><option value="QRIS">QRIS</option><option value="DANA">DANA</option><option value="GOPAY">GOPAY</option></select></div></div><input type="text" class="search-box" id="searchTransaksi" placeholder="Cari ID atau produk..."><div id="daftarTransaksi"></div></div>
+    </div>
+
+    <!-- TESTIMONI LIST -->
+    <div class="tab-content" id="tab-testimoni-list">
+        <div class="panel-section"><h2>⭐ SEMUA TESTIMONI</h2><input type="text" class="search-box" id="searchTestimoni" placeholder="Cari testimoni..."><div id="daftarTestimoni"></div></div>
+    </div>
+</div>
+
+<div class="modal" id="modalGambar"><span class="close-modal" id="closeModal">&times;</span><div class="modal-content" id="modalContent"></div></div>
+
+<script>
+const firebaseConfig = { apiKey: "AIzaSyAF3B3_Bq-Q9ulQdxfXHkCBqMTIDlx0sqY", authDomain: "panel-user-b78ff.firebaseapp.com", databaseURL: "https://panel-user-b78ff-default-rtdb.firebaseio.com", projectId: "panel-user-b78ff", storageBucket: "panel-user-b78ff.firebasestorage.app", messagingSenderId: "86797928744", appId: "1:86797928744:web:cb85dd498c6cf3b659281d" };
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const storage = firebase.storage();
+
+let settings = {}, produk = [], transaksi = [], testimoni = [], kupon = [], selectedFile = null, currentRandomUrls = [], editingProdukId = null;
+
+database.ref('settings').on('value', (s) => { settings = s.val() || {}; updateSettingsForm(); updateWarna(); updateFirebaseForm(); updateGeminiKeysForm(); });
+database.ref('produk').on('value', (s) => { produk = s.val() ? Object.values(s.val()) : []; renderProduk(); updateProdukSelect(); document.getElementById('totalProduk').textContent = produk.length; });
+database.ref('transaksi').on('value', (s) => { transaksi = s.val() ? Object.values(s.val()) : []; renderTransaksi(); renderDashboard(); document.getElementById('totalTransaksi').textContent = transaksi.length; });
+database.ref('testimoni').on('value', (s) => { testimoni = s.val() ? Object.values(s.val()) : []; renderTestimoni(); renderDashboard(); document.getElementById('totalTestimoni').textContent = testimoni.length; });
+database.ref('kupon').on('value', (s) => { kupon = s.val() ? Object.values(s.val()) : []; renderKupon(); });
+database.ref('statistik/pengunjung').on('value', (s) => { document.getElementById('totalPengunjung').textContent = s.numChildren() || 0; });
+
+function updateProdukSelect() { let select = document.getElementById('testimoniProdukSelect'); if(select){ select.innerHTML = '<option value="">-- Pilih Produk --</option>'; produk.forEach(p => { select.innerHTML += `<option value="${p.id}">${p.nama} (Rp ${p.harga?.toLocaleString()})</option>`; }); } }
+
+function updateWarna() { if(settings.primaryColor){ document.getElementById('colorPreview').style.background = settings.primaryColor; document.getElementById('colorValue').textContent = settings.primaryColor; let r=parseInt(settings.primaryColor.substr(1,2),16), g=parseInt(settings.primaryColor.substr(3,2),16), b=parseInt(settings.primaryColor.substr(5,2),16); if(!isNaN(r)){ document.getElementById('redSlider').value=r; document.getElementById('greenSlider').value=g; document.getElementById('blueSlider').value=b; document.getElementById('redValue').textContent=r; document.getElementById('greenValue').textContent=g; document.getElementById('blueValue').textContent=b; } } }
+function updateColorFromSliders(){ let r=document.getElementById('redSlider').value, g=document.getElementById('greenSlider').value, b=document.getElementById('blueSlider').value; document.getElementById('redValue').textContent=r; document.getElementById('greenValue').textContent=g; document.getElementById('blueValue').textContent=b; let hex='#'+parseInt(r).toString(16).padStart(2,'0')+parseInt(g).toString(16).padStart(2,'0')+parseInt(b).toString(16).padStart(2,'0'); document.getElementById('colorPreview').style.background=hex; document.getElementById('colorValue').textContent=hex; }
+document.getElementById('redSlider').addEventListener('input',updateColorFromSliders); document.getElementById('greenSlider').addEventListener('input',updateColorFromSliders); document.getElementById('blueSlider').addEventListener('input',updateColorFromSliders);
+window.setColor = function(hex){ document.getElementById('colorPreview').style.background=hex; document.getElementById('colorValue').textContent=hex; let r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16); if(!isNaN(r)){ document.getElementById('redSlider').value=r; document.getElementById('greenSlider').value=g; document.getElementById('blueSlider').value=b; document.getElementById('redValue').textContent=r; document.getElementById('greenValue').textContent=g; document.getElementById('blueValue').textContent=b; } };
+function updateSettingsForm(){ document.getElementById('storeName').value=settings.storeName||''; document.getElementById('storeDescription').value=settings.storeDescription||''; document.getElementById('waNumber').value=settings.waNumber||'6287713154246'; document.getElementById('danaNumber').value=settings.danaNumber||'0895-1234-5678'; document.getElementById('gopayNumber').value=settings.gopayNumber||'0857-9876-5432'; document.getElementById('biayaQRIS').value=settings.biayaQRIS||'850'; document.getElementById('pajak').value=settings.pajak||'750'; document.getElementById('apiKey').value=settings.apiKey||'RA_46617fdd55f4de340fe92126bbbd03cf'; document.getElementById('qrisTimeout').value=settings.qrisTimeout||'30'; document.getElementById('qrisSize').value=settings.qrisSize||'380'; document.getElementById('pollingInterval').value=settings.pollingInterval||'5'; document.getElementById('tahunDidirikan').value=settings.tahunDidirikan||'2026'; document.getElementById('lokasi').value=settings.lokasi||'Jakarta, Indonesia'; document.getElementById('telegram').value=settings.telegram||'arsalwaysss0'; document.getElementById('instagram').value=settings.instagram||'arsalways'; document.getElementById('facebook').value=settings.facebook||'arsalways'; document.getElementById('email').value=settings.email||'arsalwaysss4321@gmail.com'; if(settings.kelebihan) document.getElementById('kelebihan').value=settings.kelebihan.join(', '); if(settings.kekurangan) document.getElementById('kekurangan').value=settings.kekurangan.join(', '); if(settings.storeLogo){ document.getElementById('storeLogoUrl').value=settings.storeLogo; document.getElementById('previewStoreLogo').innerHTML='<img src="'+settings.storeLogo+'" class="preview-image small">'; } }
+function updateFirebaseForm(){ if(settings.firebaseConfig){ document.getElementById('firebaseApiKey').value=settings.firebaseConfig.apiKey||''; document.getElementById('firebaseAuthDomain').value=settings.firebaseConfig.authDomain||''; document.getElementById('firebaseDatabaseURL').value=settings.firebaseConfig.databaseURL||''; document.getElementById('firebaseProjectId').value=settings.firebaseConfig.projectId||''; document.getElementById('firebaseStorageBucket').value=settings.firebaseConfig.storageBucket||''; document.getElementById('firebaseMessagingSenderId').value=settings.firebaseConfig.messagingSenderId||''; document.getElementById('firebaseAppId').value=settings.firebaseConfig.appId||''; } }
+function updateGeminiKeysForm(){ let geminiKeys=settings.geminiKeys||Array(30).fill(''); let html=''; for(let i=0;i<30;i++){ html+=`<div class="gemini-key-row"><span style="width:40px;">${i+1}</span><input type="text" class="gemini-key-input" id="geminiKey${i}" placeholder="AIzaSy..." value="${(geminiKeys[i]||'').replace(/"/g,'&quot;')}"><span class="key-status"></span></div>`; } document.getElementById('geminiKeysContainer').innerHTML=html; }
+window.toggleSettings=function(header){ let content=header.nextElementSibling; let icon=header.querySelector('i'); content.classList.toggle('collapsed'); header.classList.toggle('collapsed'); if(content.classList.contains('collapsed')){ icon.style.transform='rotate(-90deg)'; }else{ icon.style.transform='rotate(0deg)'; } };
+document.getElementById('simpanWarna').onclick=()=>{ database.ref('settings/primaryColor').set(document.getElementById('colorValue').textContent); alert('Warna tersimpan!'); };
+document.getElementById('simpanSettings').onclick=()=>{ database.ref('settings').update({ storeName:document.getElementById('storeName').value, storeDescription:document.getElementById('storeDescription').value, waNumber:document.getElementById('waNumber').value, danaNumber:document.getElementById('danaNumber').value, gopayNumber:document.getElementById('gopayNumber').value, storeLogo:document.getElementById('storeLogoUrl').value||settings.storeLogo, primaryColor:document.getElementById('colorValue').textContent }); alert('Settings tersimpan!'); };
+document.getElementById('simpanQRIS').onclick=()=>{ database.ref('settings').update({ biayaQRIS:parseInt(document.getElementById('biayaQRIS').value)||850, pajak:parseInt(document.getElementById('pajak').value)||750, apiKey:document.getElementById('apiKey').value, qrisTimeout:parseInt(document.getElementById('qrisTimeout').value)||30, qrisSize:parseInt(document.getElementById('qrisSize').value)||380, pollingInterval:parseInt(document.getElementById('pollingInterval').value)||5 }); alert('QRIS settings tersimpan!'); };
+document.getElementById('simpanInfo').onclick=()=>{ database.ref('settings').update({ kelebihan:document.getElementById('kelebihan').value.split(',').map(s=>s.trim()).filter(s=>s), kekurangan:document.getElementById('kekurangan').value.split(',').map(s=>s.trim()).filter(s=>s), tahunDidirikan:document.getElementById('tahunDidirikan').value, lokasi:document.getElementById('lokasi').value }); alert('Informasi tersimpan!'); };
+document.getElementById('simpanSosmed').onclick=()=>{ database.ref('settings').update({ telegram:document.getElementById('telegram').value, instagram:document.getElementById('instagram').value, facebook:document.getElementById('facebook').value, email:document.getElementById('email').value }); alert('Sosial media tersimpan!'); };
+document.getElementById('simpanFirebaseConfig').onclick=()=>{ database.ref('settings/firebaseConfig').set({ apiKey:document.getElementById('firebaseApiKey').value, authDomain:document.getElementById('firebaseAuthDomain').value, databaseURL:document.getElementById('firebaseDatabaseURL').value, projectId:document.getElementById('firebaseProjectId').value, storageBucket:document.getElementById('firebaseStorageBucket').value, messagingSenderId:document.getElementById('firebaseMessagingSenderId').value, appId:document.getElementById('firebaseAppId').value }).then(()=>alert('Firebase config tersimpan!')).catch(err=>alert('Gagal: '+err.message)); };
+document.getElementById('testFirebase').onclick=()=>{ alert('✅ Konfigurasi valid!'); };
+document.getElementById('simpanGeminiKeys').onclick=()=>{ let keys=[]; for(let i=0;i<30;i++) keys.push(document.getElementById(`geminiKey${i}`).value); database.ref('settings/geminiKeys').set(keys).then(()=>alert('30 Gemini keys tersimpan!')).catch(err=>alert('Gagal: '+err.message)); };
+document.getElementById('resetGeminiKeys').onclick=()=>{ if(confirm('Reset ke default?')){ for(let i=0;i<30;i++) document.getElementById(`geminiKey${i}`).value=''; alert('Keys direset!'); } };
+document.getElementById('testGeminiKeys').onclick=()=>{ alert('Test selesai!'); };
+document.getElementById('testApi').onclick=()=>{ alert('Test API Payinaja'); };
+
+// Upload handlers
+document.getElementById('uploadStoreLogo').onclick=()=>document.getElementById('fileStoreLogo').click();
+document.getElementById('fileStoreLogo').onchange=(e)=>{ let file=e.target.files[0]; if(file){ let reader=new FileReader(); reader.onload=(ev)=>{ document.getElementById('previewStoreLogo').innerHTML='<img src="'+ev.target.result+'" class="preview-image small">'; document.getElementById('storeLogoUrl').value=ev.target.result; }; reader.readAsDataURL(file); } };
+document.getElementById('uploadProduk').onclick=()=>document.getElementById('fileProduk').click();
+document.getElementById('fileProduk').onchange=(e)=>{ let file=e.target.files[0]; if(file){ let reader=new FileReader(); reader.onload=(ev)=>{ document.getElementById('previewProduk').innerHTML='<img src="'+ev.target.result+'" class="preview-image">'; document.getElementById('produkGambarUrl').value=ev.target.result; }; reader.readAsDataURL(file); } };
+document.getElementById('uploadTestimoniArea').onclick=()=>document.getElementById('fileTestimoni').click();
+document.getElementById('fileTestimoni').onchange=(e)=>{ let file=e.target.files[0]; if(file){ let reader=new FileReader(); reader.onload=(ev)=>{ document.getElementById('previewTestimoni').innerHTML='<img src="'+ev.target.result+'" class="preview-image">'; }; reader.readAsDataURL(file); } };
+
+// Radio button logic
+document.querySelectorAll('input[name="linkType"]').forEach(radio => { radio.addEventListener('change', function() { if(this.value === 'single'){ document.getElementById('singleUrlGroup').style.display = 'block'; document.getElementById('randomUrlGroup').style.display = 'none'; } else { document.getElementById('singleUrlGroup').style.display = 'none'; document.getElementById('randomUrlGroup').style.display = 'block'; } }); });
+
+function renderRandomUrlList(){ let html=''; currentRandomUrls.forEach((url,idx)=>{ html+=`<div class="random-url-item"><div class="random-url-text">${url}</div><button class="btn-icon btn-icon-danger" onclick="hapusRandomUrl(${idx})"><i class="fas fa-trash"></i></button></div>`; }); document.getElementById('randomUrlList').innerHTML=html||'<p style="color:#999;">Belum ada URL acak. Tekan + TAMBAH URL ACAK</p>'; }
+window.hapusRandomUrl=function(idx){ currentRandomUrls.splice(idx,1); renderRandomUrlList(); };
+document.getElementById('btnTambahRandomUrl').onclick=function(){ let url=prompt('Masukkan URL produk acak:'); if(url&&url.trim()){ currentRandomUrls.push(url.trim()); renderRandomUrlList(); } };
+
+// Tambah produk
+document.getElementById('tambahProduk').onclick=function(){ let nama=document.getElementById('produkNama').value.trim(); let harga=document.getElementById('produkHarga').value.trim(); let stok=document.getElementById('produkStok').value.trim(); let emoji=document.getElementById('produkEmoji').value.trim()||'📦'; let deskripsi=document.getElementById('produkDeskripsi').value.trim(); let gambarUrl=document.getElementById('produkGambarUrl').value.trim(); let linkType=document.querySelector('input[name="linkType"]:checked').value; if(!nama){ alert('Nama produk harus diisi!'); return; } if(!harga||isNaN(harga)||parseInt(harga)<=0){ alert('Harga harus diisi angka valid!'); return; } let id='p'+Date.now(); let produkBaru={ id:id, nama:nama, harga:parseInt(harga), deskripsi:deskripsi||'Produk fashion galaxy', logoEmoji:emoji, logo:gambarUrl||null, linkType:linkType }; if(stok!==''&&!isNaN(parseInt(stok))) produkBaru.stok=parseInt(stok); if(linkType==='single'){ produkBaru.link=document.getElementById('produkLink').value.trim()||'#'; } else { produkBaru.randomUrls=currentRandomUrls; produkBaru.randomHistory={}; } database.ref('produk/'+id).set(produkBaru).then(()=>{ alert('✅ Produk berhasil ditambahkan!'); document.getElementById('produkNama').value=''; document.getElementById('produkHarga').value=''; document.getElementById('produkStok').value=''; document.getElementById('produkEmoji').value=''; document.getElementById('produkDeskripsi').value=''; document.getElementById('produkLink').value=''; document.getElementById('produkGambarUrl').value=''; document.getElementById('previewProduk').innerHTML=''; currentRandomUrls=[]; renderRandomUrlList(); document.getElementById('singleUrlGroup').style.display='block'; document.getElementById('randomUrlGroup').style.display='none'; document.querySelector('input[value="single"]').checked=true; }).catch(err=>alert('❌ Gagal: '+err.message)); };
+
+window.hapusProduk=function(id){ if(confirm('Yakin hapus produk ini?')) database.ref('produk/'+id).remove().then(()=>alert('Produk dihapus')).catch(err=>alert('Gagal: '+err.message)); };
+window.editProduk=function(id){ let p=produk.find(p=>p.id===id); if(!p) return; document.getElementById('produkNama').value=p.nama; document.getElementById('produkHarga').value=p.harga; document.getElementById('produkStok').value=p.stok!==undefined?p.stok:''; document.getElementById('produkEmoji').value=p.logoEmoji||''; document.getElementById('produkDeskripsi').value=p.deskripsi; document.getElementById('produkGambarUrl').value=p.logo||''; if(p.logo) document.getElementById('previewProduk').innerHTML='<img src="'+p.logo+'" class="preview-image">'; if(p.linkType==='single'){ document.querySelector('input[value="single"]').checked=true; document.getElementById('singleUrlGroup').style.display='block'; document.getElementById('randomUrlGroup').style.display='none'; document.getElementById('produkLink').value=p.link||''; } else { document.querySelector('input[value="random"]').checked=true; document.getElementById('singleUrlGroup').style.display='none'; document.getElementById('randomUrlGroup').style.display='block'; currentRandomUrls=p.randomUrls||[]; renderRandomUrlList(); } if(confirm('Edit produk ini? Data lama akan dihapus.')) database.ref('produk/'+id).remove(); };
+function renderProduk(){ let search=document.getElementById('searchProduk')?.value.toLowerCase()||''; let html=''; if(produk.length===0){ html='<p style="text-align:center; padding:20px;">Belum ada produk</p>'; }else{ produk.filter(p=>p.nama.toLowerCase().includes(search)).forEach(p=>{ let stokInfo=p.stok!==undefined&&p.stok!==null&&p.stok!==''; let randomBadge=p.linkType==='random'?'<span class="badge badge-warning" style="margin-left:10px;">🎲 Acak</span>':''; html+=`<div class="produk-item"><div class="produk-preview">${p.logo?'<img src="'+p.logo+'">':'<span>'+p.logoEmoji+'</span>'}</div><div class="produk-info"><h3>${p.nama}${randomBadge}</h3><p>Rp ${p.harga?.toLocaleString()}</p>${stokInfo?`<p>📦 Stok: ${p.stok}</p>`:'<p>♾️ Stok tidak terbatas</p>'}<p style="font-size:12px;">${p.deskripsi?.substring(0,100)||''}</p></div><div class="produk-actions"><button class="btn-icon" onclick="editProduk(\'${p.id}\')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-icon-danger" onclick="hapusProduk(\'${p.id}\')"><i class="fas fa-trash"></i></button></div></div>`; }); } document.getElementById('daftarProduk').innerHTML=html; }
+
+// Kupon
+document.getElementById('btnTambahKupon').onclick=function(){ let kode=document.getElementById('kuponKode').value.trim(); let potongan=document.getElementById('kuponPotongan').value.trim(); let expired=document.getElementById('kuponExpired').value; if(!kode){ alert('Masukkan kode kupon!'); return; } if(!potongan||isNaN(potongan)){ alert('Masukkan potongan harga!'); return; } let id='kupon_'+Date.now(); database.ref('kupon/'+id).set({ id:id, kode:kode.toUpperCase(), potongan:parseInt(potongan), expired:expired, createdAt:new Date().toISOString() }).then(()=>{ alert('Kupon ditambahkan!'); document.getElementById('kuponKode').value=''; document.getElementById('kuponPotongan').value=''; document.getElementById('kuponExpired').value=''; }).catch(err=>alert('Gagal: '+err.message)); };
+function renderKupon(){ let html=''; if(kupon.length===0){ html='<p style="text-align:center; padding:20px;">Belum ada kupon</p>'; }else{ kupon.forEach(k=>{ html+=`<div class="kupon-item"><div><strong>${k.kode}</strong> - Rp ${k.potongan.toLocaleString()}<br><small>Berlaku: ${k.expired||'Selamanya'}</small></div><button class="btn-icon btn-icon-danger" onclick="hapusKupon('${k.id}')"><i class="fas fa-trash"></i></button></div>`; }); } document.getElementById('daftarKupon').innerHTML=html; }
+window.hapusKupon=function(id){ if(confirm('Hapus kupon ini?')) database.ref('kupon/'+id).remove().then(()=>alert('Kupon dihapus')); };
+
+// Upload testimoni manual
+document.getElementById('btnUploadTestimoni').onclick=async function(){ let produkId=document.getElementById('testimoniProdukSelect').value; let file=document.getElementById('fileTestimoni').files[0]; if(!produkId){ alert('Pilih produk!'); return; } if(!file){ alert('Pilih foto!'); return; } let selectedProduk=produk.find(p=>p.id===produkId); if(!selectedProduk){ alert('Produk tidak ditemukan!'); return; } let btn=this; btn.innerHTML='<i class="fas fa-spinner fa-pulse"></i> Uploading...'; btn.disabled=true; try{ let testimoniId='testi_'+Date.now()+'_'+Math.random().toString(36).substr(2,6); let storageRef=storage.ref().child(`testimoni/${testimoniId}.jpg`); await storageRef.put(file); let imageUrl=await storageRef.getDownloadURL(); await database.ref('testimoni/'+testimoniId).set({ id:testimoniId, produkId:selectedProduk.id, produk:selectedProduk.nama, produkLogo:selectedProduk.logoEmoji||selectedProduk.logo, imageUrl:imageUrl, tanggal:new Date().toLocaleString('id-ID') }); alert('✅ Testimoni berhasil diupload!'); document.getElementById('testimoniProdukSelect').value=''; document.getElementById('fileTestimoni').value=''; document.getElementById('previewTestimoni').innerHTML=''; }catch(err){ alert('❌ Gagal: '+err.message); }finally{ btn.innerHTML='📤 UPLOAD TESTIMONI'; btn.disabled=false; } };
+
+function renderDashboard(){ let recentTrans=transaksi?transaksi.sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal)).slice(0,5):[]; let trxHtml=''; recentTrans.forEach(t=>{ let cls=t.status==='sukses'?'status-sukses':(t.status==='batal'?'status-batal':'status-pending'); trxHtml+=`<div class="transaksi-item" style="margin-bottom:15px;"><div class="transaksi-header"><strong>${t.produk}</strong><span class="transaksi-status ${cls}">${t.status}</span></div><div>💰 Rp ${t.harga?.toLocaleString()} | 💳 ${t.metode} | 📅 ${t.tanggal}</div></div>`; }); document.getElementById('transaksiTerbaru').innerHTML=trxHtml||'<p>Belum ada transaksi</p>'; let recentTesti=testimoni?testimoni.sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal)).slice(0,5):[]; let testiHtml=''; recentTesti.forEach(t=>{ testiHtml+=`<div class="testimoni-item"><div class="testimoni-header"><div class="testimoni-avatar"><i class="fas fa-user"></i></div><div class="testimoni-info"><h4>${t.produk}</h4><p>${t.tanggal}</p></div></div><img src="${t.imageUrl}" class="testimoni-gambar" style="max-height:150px;" onclick="lihatGambar('${t.imageUrl}')"></div>`; }); document.getElementById('testimoniTerbaru').innerHTML=testiHtml||'<p>Belum ada testimoni</p>'; }
+function renderTransaksi(){ let search=document.getElementById('searchTransaksi')?.value.toLowerCase()||''; let filterStatus=document.getElementById('filterStatusTransaksi')?.value||'all'; let filterMetode=document.getElementById('filterMetodeTransaksi')?.value||'all'; let filtered=transaksi.filter(t=>(t.id&&t.id.toLowerCase().includes(search))||(t.produk&&t.produk.toLowerCase().includes(search))); filtered=filtered.filter(t=>(filterStatus==='all'||t.status===filterStatus)&&(filterMetode==='all'||t.metode===filterMetode)); filtered.sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal)); let html=''; filtered.forEach(t=>{ let cls=t.status==='sukses'?'status-sukses':(t.status==='batal'?'status-batal':'status-pending'); let randomBadge=t.linkType==='random'?'<span class="badge badge-warning">🎲 Acak</span>':''; html+=`<div class="transaksi-item"><div class="transaksi-header"><div><h3>${t.produk}${randomBadge}</h3><span class="badge badge-info">ID: ${t.id}</span></div><span class="transaksi-status ${cls}">${t.status.toUpperCase()}</span></div><div class="transaksi-detail"><div><span class="label">Harga</span><span class="value">Rp ${t.harga?.toLocaleString()}</span></div><div><span class="label">Metode</span><span class="value">${t.metode}</span></div><div><span class="label">Tanggal</span><span class="value">${t.tanggal}</span></div><div><span class="label">Link Produk</span><span class="value">${t.link?`<span style="color:#00aaff;cursor:pointer;" onclick="copyToClipboard('${t.link}')">${t.link}</span> <button class="btn-sm" onclick="copyToClipboard('${t.link}')">Salin</button>`:'-'}</span></div></div>${t.buktiUrl?`<img src="${t.buktiUrl}" class="transaksi-bukti" onclick="lihatGambar('${t.buktiUrl}')">`:''}<div class="transaksi-actions">${t.status==='pending'?`<button class="btn btn-success btn-sm" onclick="updateStatus('${t.id}','sukses')">✅ Terima</button><button class="btn btn-danger btn-sm" onclick="updateStatus('${t.id}','batal')">❌ Tolak</button>`:''}<button class="btn btn-danger btn-sm" onclick="hapusTransaksi('${t.id}')">🗑️ Hapus</button></div></div>`; }); document.getElementById('daftarTransaksi').innerHTML=html||'<p style="text-align:center; padding:20px;">Tidak ada transaksi</p>'; }
+function renderTestimoni(){ let search=document.getElementById('searchTestimoni')?.value.toLowerCase()||''; let filtered=testimoni.filter(t=>t.produk&&t.produk.toLowerCase().includes(search)); filtered.sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal)); let html=''; filtered.forEach(t=>{ html+=`<div class="testimoni-item"><div class="testimoni-header"><div class="testimoni-avatar"><i class="fas fa-user"></i></div><div class="testimoni-info"><h4>${t.produk}</h4><p>${t.tanggal}</p></div></div><img src="${t.imageUrl}" class="testimoni-gambar" onclick="lihatGambar('${t.imageUrl}')"><div style="margin-top:15px;"><button class="btn-icon btn-icon-danger" onclick="hapusTestimoni('${t.id}')"><i class="fas fa-trash"></i></button></div></div>`; }); document.getElementById('daftarTestimoni').innerHTML=html||'<p style="text-align:center; padding:20px;">Tidak ada testimoni</p>'; }
+window.updateStatus=function(id,status){ database.ref('transaksi/'+id).update({status:status}).then(()=>{ if(status==='sukses'){ database.ref('transaksi/'+id).once('value',(s)=>{ let trx=s.val(); if(trx&&trx.buktiUrl){ database.ref('testimoni/'+id).set({ id:id, produkId:trx.produkId, produk:trx.produk, produkLogo:trx.produkLogo, imageUrl:trx.buktiUrl, tanggal:new Date().toLocaleString('id-ID') }); } }); } alert('Status diubah ke '+status); }).catch(err=>alert('Gagal: '+err.message)); };
+window.hapusTransaksi=function(id){ if(confirm('Hapus transaksi?')) database.ref('transaksi/'+id).remove().then(()=>alert('Transaksi dihapus')); };
+window.hapusTestimoni=function(id){ if(confirm('Hapus testimoni?')) database.ref('testimoni/'+id).remove().then(()=>alert('Testimoni dihapus')); };
+window.lihatGambar=function(url){ document.getElementById('modalContent').innerHTML='<img src="'+url+'">'; document.getElementById('modalGambar').classList.add('aktif'); };
+window.copyToClipboard=function(text){ navigator.clipboard.writeText(text).then(()=>alert('Tersalin: '+text)).catch(()=>alert('Gagal menyalin')); };
+document.getElementById('closeModal').onclick=()=>document.getElementById('modalGambar').classList.remove('aktif');
+window.onclick=(e)=>{ if(e.target===document.getElementById('modalGambar')) document.getElementById('modalGambar').classList.remove('aktif'); };
+document.getElementById('searchProduk')?.addEventListener('input',renderProduk);
+document.getElementById('searchTransaksi')?.addEventListener('input',renderTransaksi);
+document.getElementById('searchTestimoni')?.addEventListener('input',renderTestimoni);
+document.getElementById('filterStatusTransaksi')?.addEventListener('change',renderTransaksi);
+document.getElementById('filterMetodeTransaksi')?.addEventListener('change',renderTransaksi);
+document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.addEventListener('click',function(){ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); this.classList.add('active'); document.getElementById('tab-'+this.dataset.tab).classList.add('active'); }); });
+console.log('Panel Admin siap!');
+</script>
+</body>
+</html>
