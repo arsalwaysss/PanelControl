@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsalways • Panel Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <!-- Compress image library -->
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <style>
+        :root {
+            --primary-purple: #8A2BE2;
+            --secondary-purple: #4c1d95;
+            --accent-cyan: #00f3ff;
+            --accent-pink: #ff0050;
+            --bg: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --text: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
+        body { background: var(--bg); color: white; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid var(--primary-purple); flex-wrap: wrap; gap: 15px; }
+        .header h1 { color: var(--primary-purple); font-size: 28px; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px var(--primary-purple); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--primary-purple); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 0 20px rgba(138,43,226,0.2); }
+        .stat-number { font-size: 32px; font-weight: bold; color: var(--accent-cyan); margin: 10px 0; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px var(--accent-cyan); }
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 24px; background: var(--card-bg); border: 1px solid var(--primary-purple); border-radius: 10px; color: white; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .tab-btn:hover { background: rgba(138,43,226,0.3); box-shadow: 0 0 15px var(--primary-purple); }
+        .tab-btn.active { background: var(--primary-purple); color: black; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .panel-section { background: var(--card-bg); border: 1px solid var(--primary-purple); border-radius: 20px; padding: 25px; margin-bottom: 30px; box-shadow: 0 0 20px rgba(138,43,226,0.2); }
+        .panel-section h2 { color: var(--accent-cyan); margin-bottom: 20px; font-size: 22px; font-family: 'Orbitron', sans-serif; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--primary-purple); font-weight: 600; }
+        .form-control { width: 100%; padding: 12px; background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 10px; color: white; font-size: 14px; }
+        .form-control:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--primary-purple); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        .btn { padding: 12px 24px; background: var(--primary-purple); border: none; border-radius: 10px; color: black; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(138,43,226,0.3); }
+        .btn:active { transform: scale(0.95); }
+        .btn:hover { background: var(--accent-cyan); color: black; box-shadow: 0 0 20px var(--accent-cyan); }
+        .btn-danger { background: #ff4444; color: white; }
+        .btn-success { background: #00cc88; color: black; }
+        .btn-warning { background: #ff8800; color: black; }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .btn-add { background: #00cc88; color: black; padding: 8px 12px; font-size: 12px; margin-top: 5px; border: none; border-radius: 8px; cursor: pointer; }
+        .upload-area { background: #0f0f1a; border: 2px dashed var(--primary-purple); border-radius: 10px; padding: 30px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; }
+        .upload-area:hover { background: rgba(138,43,226,0.2); border-color: var(--accent-cyan); }
+        .upload-area i { font-size: 48px; color: var(--primary-purple); margin-bottom: 10px; }
+        .upload-area.small { padding: 15px; }
+        .upload-area.small i { font-size: 24px; }
+        .preview-image { max-width: 100%; max-height: 200px; border-radius: 10px; border: 2px solid var(--primary-purple); margin-top: 10px; }
+        .progress-bar-container { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 10px; display: none; }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary-purple), var(--accent-cyan)); border-radius: 3px; transition: width 0.3s; }
+        .produk-item, .testimoni-item, .transaksi-item, .kupon-item, .announcement-item { background: #0f0f1a; border: 1px solid var(--primary-purple); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .produk-preview { width: 80px; height: 80px; background: var(--card-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary-purple); overflow: hidden; flex-shrink: 0; }
+        .produk-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .produk-info { flex: 1; min-width: 200px; }
+        .produk-info h3 { margin-bottom: 5px; color: var(--accent-cyan); }
+        .btn-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--primary-purple); border: none; color: black; cursor: pointer; font-size: 16px; transition: all 0.2s ease; }
+        .btn-icon:hover { transform: scale(1.1); background: var(--accent-cyan); }
+        .btn-icon-danger { background: #ff4444; color: white; }
+        .transaksi-status { padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; display: inline-block; }
+        .status-pending { background: var(--primary-purple); color: black; }
+        .status-sukses { background: #00cc88; color: black; }
+        .status-batal { background: #ff4444; color: white; }
+        .testimoni-gambar { max-width: 100%; max-height: 200px; border-radius: 10px; border: 2px solid var(--primary-purple); cursor: pointer; margin-top: 10px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); align-items: center; justify-content: center; z-index: 9999; }
+        .modal.aktif { display: flex; }
+        .modal-content { max-width: 90%; max-height: 90%; position: relative; }
+        .modal-content img { max-width: 100%; max-height: 90vh; border-radius: 10px; border: 3px solid var(--primary-purple); }
+        .close-modal { position: absolute; top: -40px; right: 0; color: white; font-size: 30px; cursor: pointer; background: rgba(0,0,0,0.5); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .close-modal:hover { background: #ff4444; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-info { background: var(--accent-cyan); color: black; }
+        .badge-warning { background: #ffaa00; color: black; }
+        .badge-success { background: #00cc88; color: black; }
+        .badge-promo { background: #ff3366; color: white; }
+        .announcement-preview { background: rgba(0,0,0,0.5); border-left: 4px solid var(--accent-cyan); padding: 15px; margin-top: 15px; border-radius: 10px; }
+        .method-tab { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--primary-purple); padding-bottom: 10px; }
+        .method-tab-btn { padding: 8px 20px; background: transparent; border: none; color: #888; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .method-tab-btn.active { color: var(--accent-cyan); border-bottom: 2px solid var(--accent-cyan); }
+        .upload-method { display: none; }
+        .upload-method.active { display: block; }
+        /* Tab Pengumuman vs Promo */
+        .broadcast-subtab { display: flex; gap: 5px; margin-bottom: 25px; background: #0f0f1a; border-radius: 12px; padding: 5px; width: fit-content; }
+        .broadcast-subtab-btn { padding: 10px 30px; background: transparent; border: none; color: #888; cursor: pointer; font-weight: 600; border-radius: 8px; transition: 0.3s; }
+        .broadcast-subtab-btn.active { background: var(--primary-purple); color: black; box-shadow: 0 0 10px var(--primary-purple); }
+        .broadcast-panel { display: none; }
+        .broadcast-panel.active { display: block; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .produk-item { flex-direction: column; text-align: center; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-crown"></i> ARSALWAYS PANEL ADMIN</h1>
+        <div><span id="onlineStatus" style="color:#00cc88;"><i class="fas fa-circle"></i> Online</span></div>
+    </div>
+    <div class="stats">
+        <div class="stat-card"><i class="fas fa-store fa-2x"></i><div class="stat-number" id="totalProduk">0</div><div>Total Produk</div></div>
+        <div class="stat-card"><i class="fas fa-users fa-2x"></i><div class="stat-number" id="totalPengunjung">0</div><div>Pengunjung</div></div>
+        <div class="stat-card"><i class="fas fa-shopping-cart fa-2x"></i><div class="stat-number" id="totalTransaksi">0</div><div>Transaksi</div></div>
+        <div class="stat-card"><i class="fas fa-star fa-2x"></i><div class="stat-number" id="totalTestimoni">0</div><div>Testimoni</div></div>
+    </div>
+    <div class="tab-menu">
+        <div class="tab-btn active" data-tab="dashboard">📊 DASHBOARD</div>
+        <div class="tab-btn" data-tab="broadcast">📢 BROADCAST</div>
+        <div class="tab-btn" data-tab="settings">⚙️ SETTINGS</div>
+        <div class="tab-btn" data-tab="produk">📦 PRODUK</div>
+        <div class="tab-btn" data-tab="kupon">🏷️ KUPON</div>
+        <div class="tab-btn" data-tab="testimoni-upload">📸 UPLOAD TESTIMONI</div>
+        <div class="tab-btn" data-tab="transaksi">📊 TRANSAKSI</div>
+        <div class="tab-btn" data-tab="testimoni-list">📋 TESTIMONI LIST</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="tab-content active" id="tab-dashboard">
+        <div class="panel-section"><h2>📊 AKTIVITAS TERBARU</h2>
+            <div style="margin-bottom:30px;"><h3 style="color:var(--primary-purple);">📦 Transaksi Terbaru</h3><div id="transaksiTerbaru"></div></div>
+            <div><h3 style="color:var(--primary-purple);">📸 Testimoni Terbaru</h3><div id="testimoniTerbaru"></div></div>
+        </div>
+    </div>
+
+    <!-- BROADCAST / PENGUMUMAN & PROMO -->
+    <div class="tab-content" id="tab-broadcast">
+        <div class="panel-section">
+            <!-- Sub Tab: Pengumuman vs Promo -->
+            <div class="broadcast-subtab">
+                <button class="broadcast-subtab-btn active" data-broadcast="pengumuman">📢 PENGUMUMAN</button>
+                <button class="broadcast-subtab-btn" data-broadcast="promo">🎁 PROMO</button>
+            </div>
+            
+            <!-- Panel PENGUMUMAN -->
+            <div id="panelPengumuman" class="broadcast-panel active">
+                <h2>📢 KIRIM PENGUMUMAN</h2>
+                <div class="form-group"><label>Judul Pengumuman</label><input type="text" class="form-control" id="broadcastTitle" placeholder="Contoh: INFO PENTING!"></div>
+                <div class="form-group"><label>Isi Pengumuman</label><textarea class="form-control" id="broadcastMessage" rows="4" placeholder="Tulis pengumuman di sini..."></textarea></div>
+                <div class="grid-2">
+                    <div><div class="form-group"><label>Warna Border</label><input type="color" class="form-control" id="broadcastColor" value="#00f3ff"></div></div>
+                    <div><div class="form-group"><label>Icon</label><input type="text" class="form-control" id="broadcastIcon" value="📢" placeholder="📢"></div></div>
+                </div>
+                <div class="announcement-preview" id="broadcastPreview">
+                    <strong>📢 Preview:</strong><br>
+                    <span id="previewIcon">📢</span> <strong id="previewTitle">INFO PENTING!</strong>
+                    <p id="previewMessage" style="margin-top:5px;">Isi pengumuman akan tampil di sini</p>
+                </div>
+                <button class="btn btn-success" id="btnKirimBroadcast" style="margin-top:15px;"><i class="fas fa-paper-plane"></i> KIRIM PENGUMUMAN</button>
+            </div>
+            
+            <!-- Panel PROMO -->
+            <div id="panelPromo" class="broadcast-panel">
+                <h2>🎁 KIRIM PROMO SPESIAL</h2>
+                <div class="form-group"><label>Judul Promo</label><input type="text" class="form-control" id="promoTitle" placeholder="Contoh: FLASH SALE 50%!"></div>
+                <div class="form-group"><label>Isi Promo</label><textarea class="form-control" id="promoMessage" rows="4" placeholder="Tulis detail promo di sini..."></textarea></div>
+                <div class="grid-2">
+                    <div><div class="form-group"><label>Warna Border Promo</label><input type="color" class="form-control" id="promoColor" value="#ff3366"></div></div>
+                    <div><div class="form-group"><label>Icon Promo</label><input type="text" class="form-control" id="promoIcon" value="🎁" placeholder="🎁 🎉 🔥"></div></div>
+                </div>
+                <div class="form-group"><label>Kode Kupon (opsional)</label><input type="text" class="form-control" id="promoKodeKupon" placeholder="GALAXY20"></div>
+                <div class="form-group"><label>Link Promo (opsional)</label><input type="text" class="form-control" id="promoLink" placeholder="https://..."></div>
+                <div class="announcement-preview" id="promoPreview" style="border-left-color: #ff3366;">
+                    <strong>🎁 Preview Promo:</strong><br>
+                    <span id="previewPromoIcon">🎁</span> <strong id="previewPromoTitle">FLASH SALE 50%!</strong>
+                    <p id="previewPromoMessage" style="margin-top:5px;">Isi promo akan tampil di sini</p>
+                    <p id="previewPromoKupon" style="font-size:12px; color:#ffaa00;"></p>
+                </div>
+                <button class="btn btn-warning" id="btnKirimPromo" style="margin-top:15px;"><i class="fas fa-gift"></i> KIRIM PROMO</button>
+            </div>
+        </div>
+        
+        <!-- DAFTAR PENGUMUMAN -->
+        <div class="panel-section"><h2>📋 RIWAYAT PENGUMUMAN</h2><div id="daftarPengumuman"></div></div>
+        
+        <!-- DAFTAR PROMO -->
+        <div class="panel-section"><h2>🎁 RIWAYAT PROMO</h2><div id="daftarPromo"></div></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-content" id="tab-settings">
+        <div class="panel-section"><h2>⚙️ PENGATURAN TOKO</h2>
+            <div class="grid-2">
+                <div><div class="form-group"><label>Nama Toko</label><input type="text" class="form-control" id="storeName" placeholder="ARSALWAYS"></div>
+                <div class="form-group"><label>WhatsApp CS</label><input type="text" class="form-control" id="waNumber" placeholder="6281234567890"></div>
+                <div class="form-group"><label>Nomor DANA</label><input type="text" class="form-control" id="danaNumber" placeholder="0895-1234-5678"></div>
+                <div class="form-group"><label>Nomor GOPAY</label><input type="text" class="form-control" id="gopayNumber" placeholder="0857-9876-5432"></div></div>
+                <div><div class="form-group"><label>Warna Tema</label><input type="color" class="form-control" id="themeColor" value="#8A2BE2"></div>
+                <div class="form-group"><label>Biaya QRIS (Rp)</label><input type="number" class="form-control" id="biayaQRIS" value="850"></div>
+                <div class="form-group"><label>Pajak (Rp)</label><input type="number" class="form-control" id="pajak" value="750"></div>
+                <div class="form-group"><label>Logo Toko URL</label><input type="text" class="form-control" id="storeLogoUrl" placeholder="https://..."></div></div>
+            </div>
+            <button class="btn" id="simpanSettings">💾 SIMPAN SETTINGS</button>
+        </div>
+    </div>
+
+    <!-- PRODUK -->
+    <div class="tab-content" id="tab-produk">
+        <div class="panel-section"><h2>➕ TAMBAH PRODUK</h2>
+            <div class="grid-2">
+                <div><div class="form-group"><label>Nama Produk</label><input type="text" class="form-control" id="produkNama" placeholder="COSMO HOODIE"></div>
+                <div class="form-group"><label>Harga (Rp)</label><input type="number" class="form-control" id="produkHarga" placeholder="250000"></div>
+                <div class="form-group"><label>Stok (kosongkan jika tidak terbatas)</label><input type="number" class="form-control" id="produkStok" placeholder="10"></div></div>
+                <div><div class="form-group"><label>Deskripsi</label><textarea class="form-control" id="produkDeskripsi" rows="3"></textarea></div>
+                <div class="form-group"><label>Link Produk</label><input type="text" class="form-control" id="produkLink" placeholder="https://..."></div>
+                <div class="form-group"><label>Emoji</label><input type="text" class="form-control" id="produkEmoji" placeholder="🧥"></div></div>
+            </div>
+            <div class="form-group"><label>Gambar Produk</label><div class="upload-area" id="uploadProduk"><i class="fas fa-cloud-upload-alt"></i><p>Upload Gambar</p></div><input type="file" id="fileProduk" accept="image/*" style="display:none;"><div id="previewProduk"></div><input type="text" class="form-control" id="produkGambarUrl" placeholder="https://..."></div>
+            <button class="btn" id="tambahProduk">✅ TAMBAH PRODUK</button>
+        </div>
+        <div class="panel-section"><h2>📋 DAFTAR PRODUK</h2><input type="text" class="search-box" id="searchProduk" placeholder="Cari produk..."><div id="daftarProduk"></div></div>
+    </div>
+
+    <!-- KUPON -->
+    <div class="tab-content" id="tab-kupon">
+        <div class="panel-section"><h2>🏷️ BUAT KUPON</h2>
+            <div class="grid-2">
+                <div><div class="form-group"><label>Kode Kupon</label><input type="text" class="form-control" id="kuponKode" placeholder="DISKON10"></div></div>
+                <div><div class="form-group"><label>Potongan (Rp)</label><input type="number" class="form-control" id="kuponPotongan" placeholder="10000"></div></div>
+            </div>
+            <button class="btn btn-success" id="btnTambahKupon">+ TAMBAH KUPON</button>
+        </div>
+        <div class="panel-section"><h2>📋 DAFTAR KUPON</h2><div id="daftarKupon"></div></div>
+    </div>
+
+    <!-- UPLOAD TESTIMONI MANUAL dengan 2 Metode: File Upload + URL -->
+    <div class="tab-content" id="tab-testimoni-upload">
+        <div class="panel-section"><h2>📸 UPLOAD TESTIMONI MANUAL</h2>
+            <div class="form-group"><label>Pilih Produk</label><select class="form-control" id="testimoniProdukSelect"><option value="">-- Pilih Produk --</option></select></div>
+            
+            <div class="method-tab">
+                <button class="method-tab-btn active" data-method="file">📁 Upload File</button>
+                <button class="method-tab-btn" data-method="url">🔗 Input URL Gambar</button>
+            </div>
+            
+            <div id="methodFile" class="upload-method active">
+                <div class="form-group"><label>Foto Testimoni</label>
+                    <div class="upload-area" id="uploadTestimoniArea"><i class="fas fa-cloud-upload-alt"></i><p>Klik untuk Upload Foto</p></div>
+                    <input type="file" id="fileTestimoni" accept="image/*" style="display:none;">
+                    <div id="previewTestimoni"></div>
+                    <div class="progress-bar-container" id="progressContainer"><div class="progress-bar" id="progressBar"></div></div>
+                </div>
+            </div>
+            
+            <div id="methodUrl" class="upload-method">
+                <div class="form-group"><label>URL Gambar Testimoni</label>
+                    <input type="text" class="form-control" id="testimoniUrlInput" placeholder="https://example.com/foto-testimoni.jpg">
+                    <div id="previewUrlTestimoni"></div>
+                </div>
+            </div>
+            
+            <button class="btn btn-success" id="btnUploadTestimoni" style="margin-top:10px;">📤 UPLOAD TESTIMONI</button>
+        </div>
+    </div>
+
+    <!-- TRANSAKSI -->
+    <div class="tab-content" id="tab-transaksi">
+        <div class="panel-section"><h2>📊 SEMUA TRANSAKSI</h2>
+            <div class="grid-2">
+                <div><label>Filter Status</label><select class="form-control" id="filterStatusTransaksi"><option value="all">Semua</option><option value="sukses">Sukses</option><option value="pending">Pending</option><option value="batal">Batal</option></select></div>
+                <div><label>Filter Metode</label><select class="form-control" id="filterMetodeTransaksi"><option value="all">Semua</option><option value="QRIS">QRIS</option><option value="DANA">DANA</option><option value="GOPAY">GOPAY</option></select></div>
+            </div>
+            <input type="text" class="search-box" id="searchTransaksi" placeholder="Cari ID atau produk..."><div id="daftarTransaksi"></div>
+        </div>
+    </div>
+
+    <!-- TESTIMONI LIST dengan Hapus -->
+    <div class="tab-content" id="tab-testimoni-list">
+        <div class="panel-section"><h2>⭐ SEMUA TESTIMONI</h2><input type="text" class="search-box" id="searchTestimoni" placeholder="Cari testimoni..."><div id="daftarTestimoni"></div></div>
+    </div>
+</div>
+
+<div class="modal" id="modalGambar"><span class="close-modal" id="closeModal">&times;</span><div class="modal-content" id="modalContent"></div></div>
+
+<script>
+const firebaseConfig = { apiKey: "AIzaSyAF3B3_Bq-Q9ulQdxfXHkCBqMTIDlx0sqY", authDomain: "panel-user-b78ff.firebaseapp.com", databaseURL: "https://panel-user-b78ff-default-rtdb.firebaseio.com", projectId: "panel-user-b78ff", storageBucket: "panel-user-b78ff.firebasestorage.app", messagingSenderId: "86797928744", appId: "1:86797928744:web:cb85dd498c6cf3b659281d" };
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const storage = firebase.storage();
+
+let settings = {}, produk = [], transaksi = [], testimoni = [], kupon = [], pengumuman = [], promo = [];
+let currentUploadMethod = 'file';
+
+// Load data
+database.ref('settings').on('value', (s) => { settings = s.val() || {}; updateSettingsForm(); if(settings.primaryColor) document.getElementById('themeColor').value = settings.primaryColor; });
+database.ref('produk').on('value', (s) => { produk = s.val() ? Object.values(s.val()) : []; renderProduk(); updateProdukSelect(); document.getElementById('totalProduk').textContent = produk.length; });
+database.ref('transaksi').on('value', (s) => { transaksi = s.val() ? Object.values(s.val()) : []; renderTransaksi(); renderDashboard(); document.getElementById('totalTransaksi').textContent = transaksi.length; });
+database.ref('testimoni').on('value', (s) => { testimoni = s.val() ? Object.values(s.val()) : []; renderTestimoni(); renderDashboard(); document.getElementById('totalTestimoni').textContent = testimoni.length; });
+database.ref('kupon').on('value', (s) => { kupon = s.val() ? Object.values(s.val()) : []; renderKupon(); });
+database.ref('pengumuman').on('value', (s) => { pengumuman = s.val() ? Object.values(s.val()) : []; renderPengumuman(); });
+database.ref('promo').on('value', (s) => { promo = s.val() ? Object.values(s.val()) : []; renderPromo(); });
+database.ref('statistik/pengunjung').on('value', (s) => { document.getElementById('totalPengunjung').textContent = s.numChildren() || 0; });
+
+function updateProdukSelect() { let select = document.getElementById('testimoniProdukSelect'); if(select){ select.innerHTML = '<option value="">-- Pilih Produk --</option>'; produk.forEach(p => { select.innerHTML += `<option value="${p.id}">${p.nama} (Rp ${p.harga?.toLocaleString()})</option>`; }); } }
+
+function updateSettingsForm(){ document.getElementById('storeName').value = settings.storeName || ''; document.getElementById('waNumber').value = settings.waNumber || '6287713154246'; document.getElementById('danaNumber').value = settings.danaNumber || '0895-1234-5678'; document.getElementById('gopayNumber').value = settings.gopayNumber || '0857-9876-5432'; document.getElementById('biayaQRIS').value = settings.biayaQRIS || '850'; document.getElementById('pajak').value = settings.pajak || '750'; document.getElementById('storeLogoUrl').value = settings.storeLogo || ''; if(settings.storeLogo) document.getElementById('previewStoreLogo').innerHTML = '<img src="'+settings.storeLogo+'" class="preview-image small">'; }
+
+document.getElementById('simpanSettings').onclick = () => { database.ref('settings').update({ storeName: document.getElementById('storeName').value, waNumber: document.getElementById('waNumber').value, danaNumber: document.getElementById('danaNumber').value, gopayNumber: document.getElementById('gopayNumber').value, biayaQRIS: parseInt(document.getElementById('biayaQRIS').value)||850, pajak: parseInt(document.getElementById('pajak').value)||750, storeLogo: document.getElementById('storeLogoUrl').value, primaryColor: document.getElementById('themeColor').value }); alert('Settings tersimpan!'); };
+
+// ========== SUB TAB PENGUMUMAN VS PROMO ==========
+document.querySelectorAll('.broadcast-subtab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.broadcast-subtab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        let type = this.dataset.broadcast;
+        document.querySelectorAll('.broadcast-panel').forEach(p => p.classList.remove('active'));
+        if(type === 'pengumuman') document.getElementById('panelPengumuman').classList.add('active');
+        else document.getElementById('panelPromo').classList.add('active');
+    });
+});
+
+// ========== PREVIEW PENGUMUMAN ==========
+document.getElementById('broadcastTitle').addEventListener('input', updatePengumumanPreview);
+document.getElementById('broadcastMessage').addEventListener('input', updatePengumumanPreview);
+document.getElementById('broadcastIcon').addEventListener('input', updatePengumumanPreview);
+function updatePengumumanPreview() {
+    document.getElementById('previewIcon').innerHTML = document.getElementById('broadcastIcon').value || '📢';
+    document.getElementById('previewTitle').innerHTML = document.getElementById('broadcastTitle').value || 'Judul Pengumuman';
+    document.getElementById('previewMessage').innerHTML = document.getElementById('broadcastMessage').value || 'Isi pengumuman akan tampil di sini';
+}
+
+// ========== PREVIEW PROMO ==========
+document.getElementById('promoTitle').addEventListener('input', updatePromoPreview);
+document.getElementById('promoMessage').addEventListener('input', updatePromoPreview);
+document.getElementById('promoIcon').addEventListener('input', updatePromoPreview);
+document.getElementById('promoKodeKupon').addEventListener('input', updatePromoPreview);
+function updatePromoPreview() {
+    document.getElementById('previewPromoIcon').innerHTML = document.getElementById('promoIcon').value || '🎁';
+    document.getElementById('previewPromoTitle').innerHTML = document.getElementById('promoTitle').value || 'Judul Promo';
+    document.getElementById('previewPromoMessage').innerHTML = document.getElementById('promoMessage').value || 'Isi promo akan tampil di sini';
+    let kupon = document.getElementById('promoKodeKupon').value.trim();
+    if(kupon) document.getElementById('previewPromoKupon').innerHTML = `🏷️ Gunakan kupon: <strong style="color:#ffaa00">${kupon}</strong> untuk mendapatkan promo!`;
+    else document.getElementById('previewPromoKupon').innerHTML = '';
+}
+
+// ========== KIRIM PENGUMUMAN ==========
+document.getElementById('btnKirimBroadcast').onclick = async () => {
+    let title = document.getElementById('broadcastTitle').value.trim();
+    let message = document.getElementById('broadcastMessage').value.trim();
+    if(!title || !message) { alert('Judul dan isi pengumuman harus diisi!'); return; }
+    let pengumumanId = 'ann_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+    let dataPengumuman = {
+        id: pengumumanId,
+        title: title,
+        message: message,
+        icon: document.getElementById('broadcastIcon').value || '📢',
+        color: document.getElementById('broadcastColor').value,
+        tanggal: new Date().toLocaleString('id-ID'),
+        timestamp: Date.now(),
+        type: 'pengumuman'
+    };
+    await database.ref('pengumuman/' + pengumumanId).set(dataPengumuman);
+    alert('✅ Pengumuman berhasil dikirim!');
+    document.getElementById('broadcastTitle').value = '';
+    document.getElementById('broadcastMessage').value = '';
+    updatePengumumanPreview();
+};
+
+// ========== KIRIM PROMO ==========
+document.getElementById('btnKirimPromo').onclick = async () => {
+    let title = document.getElementById('promoTitle').value.trim();
+    let message = document.getElementById('promoMessage').value.trim();
+    if(!title || !message) { alert('Judul dan isi promo harus diisi!'); return; }
+    let promoId = 'promo_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+    let dataPromo = {
+        id: promoId,
+        title: title,
+        message: message,
+        icon: document.getElementById('promoIcon').value || '🎁',
+        color: document.getElementById('promoColor').value,
+        kodeKupon: document.getElementById('promoKodeKupon').value.trim(),
+        link: document.getElementById('promoLink').value.trim(),
+        tanggal: new Date().toLocaleString('id-ID'),
+        timestamp: Date.now(),
+        type: 'promo'
+    };
+    await database.ref('promo/' + promoId).set(dataPromo);
+    alert('✅ Promo berhasil dikirim!');
+    document.getElementById('promoTitle').value = '';
+    document.getElementById('promoMessage').value = '';
+    document.getElementById('promoKodeKupon').value = '';
+    document.getElementById('promoLink').value = '';
+    updatePromoPreview();
+};
+
+function renderPengumuman() {
+    let html = '';
+    if(pengumuman.length === 0) { html = '<p style="text-align:center; padding:20px;">Belum ada pengumuman</p>'; }
+    else {
+        pengumuman.sort((a,b) => b.timestamp - a.timestamp);
+        pengumuman.forEach(p => {
+            html += `<div class="announcement-item" style="border-left: 4px solid ${p.color || '#00f3ff'}">
+                        <div style="flex:1"><i class="fas fa-bullhorn"></i> <strong>${p.title}</strong><br>
+                        <small>${p.message}</small><br>
+                        <span style="font-size:11px; color:#888;">${p.tanggal}</span></div>
+                        <button class="btn-icon btn-icon-danger" onclick="hapusPengumuman('${p.id}')"><i class="fas fa-trash"></i></button>
+                    </div>`;
+        });
+    }
+    document.getElementById('daftarPengumuman').innerHTML = html;
+}
+
+function renderPromo() {
+    let html = '';
+    if(promo.length === 0) { html = '<p style="text-align:center; padding:20px;">Belum ada promo</p>'; }
+    else {
+        promo.sort((a,b) => b.timestamp - a.timestamp);
+        promo.forEach(p => {
+            html += `<div class="announcement-item" style="border-left: 4px solid ${p.color || '#ff3366'}">
+                        <div style="flex:1"><i class="fas fa-gift"></i> <strong>${p.title}</strong><br>
+                        <small>${p.message}</small>
+                        ${p.kodeKupon ? `<br><span class="badge badge-warning">🏷️ Kupon: ${p.kodeKupon}</span>` : ''}
+                        ${p.link ? `<br><span style="font-size:11px;">🔗 <a href="${p.link}" target="_blank" style="color:#00aaff;">${p.link.substring(0,50)}</a></span>` : ''}
+                        <br><span style="font-size:11px; color:#888;">${p.tanggal}</span></div>
+                        <button class="btn-icon btn-icon-danger" onclick="hapusPromo('${p.id}')"><i class="fas fa-trash"></i></button>
+                    </div>`;
+        });
+    }
+    document.getElementById('daftarPromo').innerHTML = html;
+}
+
+window.hapusPengumuman = function(id) { if(confirm('Hapus pengumuman ini?')) database.ref('pengumuman/'+id).remove(); };
+window.hapusPromo = function(id) { if(confirm('Hapus promo ini?')) database.ref('promo/'+id).remove(); };
+
+// ========== METHOD TAB ==========
+document.querySelectorAll('.method-tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.method-tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentUploadMethod = this.dataset.method;
+        document.querySelectorAll('.upload-method').forEach(m => m.classList.remove('active'));
+        if(currentUploadMethod === 'file') document.getElementById('methodFile').classList.add('active');
+        else document.getElementById('methodUrl').classList.add('active');
+    });
+});
+
+// Preview URL
+document.getElementById('testimoniUrlInput').addEventListener('input', function() {
+    let url = this.value.trim();
+    if(url && (url.startsWith('http://') || url.startsWith('https://'))) {
+        document.getElementById('previewUrlTestimoni').innerHTML = `<img src="${url}" class="preview-image" onerror="this.style.display='none';this.parentElement.innerHTML='<p style=color:#ff4444>❌ URL tidak valid atau gambar tidak bisa diakses</p>'">`;
+    } else {
+        document.getElementById('previewUrlTestimoni').innerHTML = '';
+    }
+});
+
+// ========== UPLOAD TESTIMONI (FILE + URL) ==========
+document.getElementById('uploadTestimoniArea').onclick = () => document.getElementById('fileTestimoni').click();
+document.getElementById('fileTestimoni').onchange = (e) => {
+    let file = e.target.files[0];
+    if(file){
+        let reader = new FileReader();
+        reader.onload = (ev) => { document.getElementById('previewTestimoni').innerHTML = '<img src="'+ev.target.result+'" class="preview-image">'; };
+        reader.readAsDataURL(file);
+    }
+};
+
+async function compressImage(file) {
+    const options = { maxSizeMB: 0.3, maxWidthOrHeight: 800, useWebWorker: true };
+    try { return await imageCompression(file, options); } catch(e) { return file; }
+}
+
+document.getElementById('btnUploadTestimoni').onclick = async function() {
+    let produkId = document.getElementById('testimoniProdukSelect').value;
+    if(!produkId){ alert('Pilih produk!'); return; }
+    let selectedProduk = produk.find(p => p.id === produkId);
+    if(!selectedProduk){ alert('Produk tidak ditemukan!'); return; }
+    
+    let btn = this;
+    let progressContainer = document.getElementById('progressContainer');
+    let progressBar = document.getElementById('progressBar');
+    let imageUrl = null;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Memproses...';
+    btn.disabled = true;
+    
+    try {
+        if(currentUploadMethod === 'file') {
+            let file = document.getElementById('fileTestimoni').files[0];
+            if(!file){ alert('Pilih foto terlebih dahulu!'); btn.innerHTML = '📤 UPLOAD TESTIMONI'; btn.disabled = false; return; }
+            
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '20%';
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Mengompres...';
+            
+            let compressedFile = await compressImage(file);
+            progressBar.style.width = '50%';
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Uploading...';
+            
+            let testimoniId = 'testi_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+            let storageRef = storage.ref().child(`testimoni/${testimoniId}.jpg`);
+            
+            let uploadTask = storageRef.put(compressedFile);
+            uploadTask.on('state_changed', (snapshot) => {
+                let percent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressBar.style.width = percent + '%';
+            });
+            
+            await uploadTask;
+            imageUrl = await storageRef.getDownloadURL();
+            progressBar.style.width = '100%';
+            
+            await database.ref('testimoni/'+testimoniId).set({
+                id: testimoniId, produkId: selectedProduk.id, produk: selectedProduk.nama,
+                produkLogo: selectedProduk.logoEmoji || selectedProduk.logo,
+                imageUrl: imageUrl, tanggal: new Date().toLocaleString('id-ID')
+            });
+            
+            document.getElementById('fileTestimoni').value = '';
+            document.getElementById('previewTestimoni').innerHTML = '';
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            
+        } else {
+            let urlInput = document.getElementById('testimoniUrlInput').value.trim();
+            if(!urlInput){ alert('Masukkan URL gambar!'); btn.innerHTML = '📤 UPLOAD TESTIMONI'; btn.disabled = false; return; }
+            if(!urlInput.startsWith('http://') && !urlInput.startsWith('https://')) {
+                alert('URL harus dimulai dengan http:// atau https://'); btn.innerHTML = '📤 UPLOAD TESTIMONI'; btn.disabled = false; return;
+            }
+            
+            let testimoniId = 'testi_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+            await database.ref('testimoni/'+testimoniId).set({
+                id: testimoniId, produkId: selectedProduk.id, produk: selectedProduk.nama,
+                produkLogo: selectedProduk.logoEmoji || selectedProduk.logo,
+                imageUrl: urlInput, tanggal: new Date().toLocaleString('id-ID')
+            });
+            
+            document.getElementById('testimoniUrlInput').value = '';
+            document.getElementById('previewUrlTestimoni').innerHTML = '';
+        }
+        
+        alert('✅ Testimoni berhasil ditambahkan!');
+        document.getElementById('testimoniProdukSelect').value = '';
+        
+    } catch(err) {
+        alert('❌ Gagal: '+err.message);
+    } finally {
+        btn.innerHTML = '📤 UPLOAD TESTIMONI';
+        btn.disabled = false;
+        setTimeout(() => { progressContainer.style.display = 'none'; }, 500);
+    }
+};
+
+// ========== HAPUS TESTIMONI ==========
+window.hapusTestimoni = function(id) {
+    if(confirm('Hapus testimoni ini? Data akan dihapus permanen.')){
+        database.ref('testimoni/'+id).remove().then(() => alert('Testimoni dihapus')).catch(err => alert('Gagal: '+err.message));
+    }
+};
+
+// ========== PRODUK ==========
+document.getElementById('uploadProduk').onclick = () => document.getElementById('fileProduk').click();
+document.getElementById('fileProduk').onchange = (e) => {
+    let file = e.target.files[0];
+    if(file){
+        let reader = new FileReader();
+        reader.onload = (ev) => { document.getElementById('previewProduk').innerHTML = '<img src="'+ev.target.result+'" class="preview-image">'; document.getElementById('produkGambarUrl').value = ev.target.result; };
+        reader.readAsDataURL(file);
+    }
+};
+document.getElementById('tambahProduk').onclick = function() {
+    let nama = document.getElementById('produkNama').value.trim();
+    let harga = document.getElementById('produkHarga').value.trim();
+    if(!nama || !harga){ alert('Nama dan harga harus diisi!'); return; }
+    let id = 'p'+Date.now();
+    let produkBaru = { id: id, nama: nama, harga: parseInt(harga), deskripsi: document.getElementById('produkDeskripsi').value || 'Produk fashion galaxy', logoEmoji: document.getElementById('produkEmoji').value || '📦', logo: document.getElementById('produkGambarUrl').value || null, link: document.getElementById('produkLink').value || '#' };
+    let stok = document.getElementById('produkStok').value.trim();
+    if(stok !== '' && !isNaN(parseInt(stok))) produkBaru.stok = parseInt(stok);
+    database.ref('produk/'+id).set(produkBaru).then(() => {
+        alert('✅ Produk ditambahkan!');
+        document.getElementById('produkNama').value = ''; document.getElementById('produkHarga').value = ''; document.getElementById('produkStok').value = ''; document.getElementById('produkDeskripsi').value = ''; document.getElementById('produkLink').value = ''; document.getElementById('produkEmoji').value = ''; document.getElementById('produkGambarUrl').value = ''; document.getElementById('previewProduk').innerHTML = '';
+    }).catch(err => alert('❌ Gagal: '+err.message));
+};
+window.hapusProduk = function(id){ if(confirm('Yakin hapus produk?')) database.ref('produk/'+id).remove(); };
+function renderProduk(){
+    let search = document.getElementById('searchProduk')?.value.toLowerCase() || '';
+    let html = '';
+    produk.filter(p => p.nama.toLowerCase().includes(search)).forEach(p => {
+        html += `<div class="produk-item"><div class="produk-preview">${p.logo?'<img src="'+p.logo+'">':'<span>'+p.logoEmoji+'</span>'}</div><div class="produk-info"><h3>${p.nama}</h3><p>Rp ${p.harga?.toLocaleString()}</p>${p.stok!==undefined?`<p>📦 Stok: ${p.stok}</p>`:'<p>♾️ Stok tidak terbatas</p>'}</div><div class="produk-actions"><button class="btn-icon btn-icon-danger" onclick="hapusProduk(\'${p.id}\')"><i class="fas fa-trash"></i></button></div></div>`;
+    });
+    document.getElementById('daftarProduk').innerHTML = html || '<p style="text-align:center; padding:20px;">Belum ada produk</p>';
+}
+
+// ========== KUPON ==========
+document.getElementById('btnTambahKupon').onclick = function(){
+    let kode = document.getElementById('kuponKode').value.trim().toUpperCase();
+    let potongan = document.getElementById('kuponPotongan').value.trim();
+    if(!kode || !potongan){ alert('Isi semua field!'); return; }
+    database.ref('kupon/'+kode).set({ id: kode, kode: kode, potongan: parseInt(potongan), createdAt: new Date().toISOString() }).then(() => { alert('Kupon ditambahkan!'); document.getElementById('kuponKode').value = ''; document.getElementById('kuponPotongan').value = ''; });
+};
+window.hapusKupon = function(id){ if(confirm('Hapus kupon?')) database.ref('kupon/'+id).remove(); };
+function renderKupon(){
+    let html = '';
+    kupon.forEach(k => { html += `<div class="kupon-item"><div><strong>${k.kode}</strong> - Rp ${k.potongan.toLocaleString()}</div><button class="btn-icon btn-icon-danger" onclick="hapusKupon('${k.id}')"><i class="fas fa-trash"></i></button></div>`; });
+    document.getElementById('daftarKupon').innerHTML = html || '<p style="text-align:center; padding:20px;">Belum ada kupon</p>';
+}
+
+// ========== TRANSAKSI ==========
+window.updateStatus = function(id, status){ database.ref('transaksi/'+id).update({status: status}).then(() => alert('Status diubah ke '+status)); };
+window.hapusTransaksi = function(id){ if(confirm('Hapus transaksi?')) database.ref('transaksi/'+id).remove(); };
+function renderTransaksi(){
+    let search = document.getElementById('searchTransaksi')?.value.toLowerCase() || '';
+    let filterStatus = document.getElementById('filterStatusTransaksi')?.value || 'all';
+    let filtered = transaksi.filter(t => (t.id && t.id.toLowerCase().includes(search)) || (t.produk && t.produk.toLowerCase().includes(search)));
+    filtered = filtered.filter(t => filterStatus === 'all' || t.status === filterStatus);
+    filtered.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+    let html = '';
+    filtered.forEach(t => {
+        let cls = t.status === 'sukses' ? 'status-sukses' : (t.status === 'batal' ? 'status-batal' : 'status-pending');
+        html += `<div class="transaksi-item"><div><strong>${t.produk}</strong> <span class="transaksi-status ${cls}">${t.status}</span></div><div>💰 Rp ${t.harga?.toLocaleString()} | 💳 ${t.metode} | 📅 ${t.tanggal}</div><div>ID: ${t.id}</div>${t.buktiUrl?`<img src="${t.buktiUrl}" class="testimoni-gambar" style="max-height:150px;" onclick="lihatGambar('${t.buktiUrl}')">`:''}<div style="margin-top:10px;">${t.status==='pending'?`<button class="btn btn-success btn-sm" onclick="updateStatus('${t.id}','sukses')">✅ Terima</button> <button class="btn btn-danger btn-sm" onclick="updateStatus('${t.id}','batal')">❌ Tolak</button> `:''}<button class="btn btn-danger btn-sm" onclick="hapusTransaksi('${t.id}')">🗑️ Hapus</button></div></div>`;
+    });
+    document.getElementById('daftarTransaksi').innerHTML = html || '<p style="text-align:center; padding:20px;">Tidak ada transaksi</p>';
+}
+
+// ========== TESTIMONI LIST ==========
+function renderTestimoni(){
+    let search = document.getElementById('searchTestimoni')?.value.toLowerCase() || '';
+    let filtered = testimoni.filter(t => t.produk && t.produk.toLowerCase().includes(search));
+    filtered.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+    let html = '';
+    filtered.forEach(t => {
+        html += `<div class="testimoni-item"><div><strong>⭐ ${t.produk}</strong><br><small>${t.tanggal}</small></div><img src="${t.imageUrl}" class="testimoni-gambar" style="max-height:200px;" onclick="lihatGambar('${t.imageUrl}')" onerror="this.style.display='none';this.parentElement.innerHTML+='<p style=color:#ff4444>Gambar tidak bisa dimuat</p>'"><div style="margin-top:10px;"><button class="btn-icon btn-icon-danger" onclick="hapusTestimoni('${t.id}')"><i class="fas fa-trash"></i> Hapus</button></div></div>`;
+    });
+    document.getElementById('daftarTestimoni').innerHTML = html || '<p style="text-align:center; padding:20px;">Belum ada testimoni</p>';
+}
+
+// ========== DASHBOARD ==========
+function renderDashboard(){
+    let recentTrans = transaksi ? transaksi.sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal)).slice(0,5) : [];
+    let trxHtml = '';
+    recentTrans.forEach(t => { trxHtml += `<div class="transaksi-item" style="margin-bottom:15px;"><div><strong>${t.produk}</strong> <span class="transaksi-status ${t.status==='sukses'?'status-sukses':(t.status==='batal'?'status-batal':'status-pending')}">${t.status}</span></div><div>💰 Rp ${t.harga?.toLocaleString()} | ${t.tanggal}</div></div>`; });
+    document.getElementById('transaksiTerbaru').innerHTML = trxHtml || '<p>Belum ada transaksi</p>';
+    let recentTesti = testimoni ? testimoni.sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal)).slice(0,5) : [];
+    let testiHtml = '';
+    recentTesti.forEach(t => { testiHtml += `<div class="testimoni-item"><div><strong>${t.produk}</strong><br><small>${t.tanggal}</small></div><img src="${t.imageUrl}" class="testimoni-gambar" style="max-height:100px;" onclick="lihatGambar('${t.imageUrl}')"></div>`; });
+    document.getElementById('testimoniTerbaru').innerHTML = testiHtml || '<p>Belum ada testimoni</p>';
+}
+
+// ========== UTILITY ==========
+window.lihatGambar = function(url){ document.getElementById('modalContent').innerHTML = '<img src="'+url+'">'; document.getElementById('modalGambar').classList.add('aktif'); };
+document.getElementById('closeModal').onclick = () => document.getElementById('modalGambar').classList.remove('aktif');
+window.onclick = (e) => { if(e.target === document.getElementById('modalGambar')) document.getElementById('modalGambar').classList.remove('aktif'); };
+document.getElementById('searchProduk')?.addEventListener('input', renderProduk);
+document.getElementById('searchTransaksi')?.addEventListener('input', renderTransaksi);
+document.getElementById('searchTestimoni')?.addEventListener('input', renderTestimoni);
+document.getElementById('filterStatusTransaksi')?.addEventListener('change', renderTransaksi);
+document.getElementById('filterMetodeTransaksi')?.addEventListener('change', renderTransaksi);
+
+// Tab navigation
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function(){
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('tab-'+this.dataset.tab).classList.add('active');
+    });
+});
+
+console.log('Panel Admin siap! Broadcast dengan tab Pengumuman & Promo!');
+</script>
+</body>
+</html>
